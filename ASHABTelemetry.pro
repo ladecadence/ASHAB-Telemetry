@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     about.cpp \
-    config.cpp
+    config.cpp \
+    telemetry.cpp
 
 HEADERS  += mainwindow.h \
     about.h \
-    config.h
+    config.h \
+    telemetry.h
 
 FORMS    += mainwindow.ui \
     about.ui \

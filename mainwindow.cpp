@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(1000);
     connectTcp(ip, port);
 
+    telemetry = new Telemetry();
+
     // UI
     aboutDialog = new About(this);
     configDialog = new Config(this);
@@ -130,4 +132,23 @@ void MainWindow::on_actionSalir_triggered()
 void MainWindow::on_actionConfigurar_triggered()
 {
     configDialog->show();
+}
+
+void MainWindow::uploadTelemetry()
+{
+    // Setup the webservice url
+    QUrl postData;
+
+    // add the data
+    postData.addQueryItem("telemetry", telemetry->toString());
+    fprintf(stderr, "%s\n", telemetry->toString().toLocal8Bit().constData());
+
+    // Auth
+    QString concatenated = config->value("tracker/user").toString() + ":" + config->value("tracker/password").toString();
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
+
+    QNetworkRequest request(config->value("tracker/url").toString());
+    request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
 }

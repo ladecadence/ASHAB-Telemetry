@@ -28,6 +28,16 @@ Config::Config(QWidget *parent) :
         ui->serverHostEdit->setText("http://ashab.space/tracker/upload.php");
     }
 
+    if (config->contains("tracker/user"))
+    {
+        ui->serverUserEdit->setText(config->value("tracker/user").toString());
+    }
+
+    if (config->contains("tracker/password"))
+    {
+        ui->serverPassEdit->setText(config->value("tracker/password").toString());
+    }
+
 }
 
 Config::~Config()
@@ -40,6 +50,18 @@ void Config::on_buttonBox_accepted()
     config = new QSettings("ASHAB", "Telemetry");
 
     // check fields
+    if (!ui->direwolfHostEdit->text().isEmpty())
+        config->setValue("direwolf/ip", ui->direwolfHostEdit->text());
+
+    if (!ui->direwolfPortEdit->text().isEmpty())
+        config->setValue("direwolf/port", ui->direwolfPortEdit->text());
+
     if (!ui->serverHostEdit->text().isEmpty())
         config->setValue("tracker/url", ui->serverHostEdit->text());
+
+    if (!ui->serverUserEdit->text().isEmpty())
+        config->setValue("tracker/user", ui->serverUserEdit->text());
+
+    if (!ui->serverPassEdit->text().isEmpty())
+        config->setValue("tracker/password", ui->serverPassEdit->text());
 }
