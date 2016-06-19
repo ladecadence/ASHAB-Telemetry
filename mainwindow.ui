@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>671</width>
-    <height>174</height>
+    <height>191</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,21 +19,26 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>161</width>
+      <width>181</width>
       <height>121</height>
      </rect>
     </property>
     <property name="title">
-     <string>Posicion</string>
+     <string>Posición</string>
     </property>
     <widget class="QLabel" name="labelLat">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>141</width>
+       <width>161</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Latitud:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -44,9 +49,14 @@
       <rect>
        <x>10</x>
        <y>50</y>
-       <width>141</width>
+       <width>161</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Longitud:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -57,9 +67,14 @@
       <rect>
        <x>10</x>
        <y>70</y>
-       <width>141</width>
+       <width>161</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Altura:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -69,14 +84,14 @@
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>200</x>
       <y>10</y>
-      <width>141</width>
+      <width>151</width>
       <height>121</height>
      </rect>
     </property>
     <property name="title">
-     <string>Direccion</string>
+     <string>Dirección</string>
     </property>
     <widget class="QLabel" name="labelHdg">
      <property name="geometry">
@@ -86,6 +101,11 @@
        <width>121</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Heading:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -100,6 +120,11 @@
        <height>16</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Velocidad:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -108,7 +133,7 @@
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>10</y>
       <width>161</width>
       <height>121</height>
@@ -126,8 +151,13 @@
        <height>16</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bateria:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Batería:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="labelTin">
@@ -138,6 +168,11 @@
        <width>121</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Temp. Interna: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -152,6 +187,11 @@
        <height>16</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Temp. Externa: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -165,8 +205,13 @@
        <height>16</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barometro:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barómetro:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>
@@ -175,8 +220,8 @@
      <rect>
       <x>520</x>
       <y>0</y>
-      <width>141</width>
-      <height>141</height>
+      <width>131</width>
+      <height>151</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -188,6 +233,9 @@
     <property name="lineWidth">
      <number>0</number>
     </property>
+    <property name="midLineWidth">
+     <number>0</number>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -196,7 +244,7 @@
      <x>0</x>
      <y>0</y>
      <width>671</width>
-     <height>19</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArchivo">

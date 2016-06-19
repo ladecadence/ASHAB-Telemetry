@@ -6,6 +6,8 @@ Config::Config(QWidget *parent) :
     ui(new Ui::Config)
 {
     ui->setupUi(this);
+
+    // read configuration values
     config = new QSettings("ASHAB", "Telemetry");
     if (config->contains("direwolf/ip"))
     {
@@ -49,7 +51,7 @@ void Config::on_buttonBox_accepted()
 {
     config = new QSettings("ASHAB", "Telemetry");
 
-    // check fields
+    // check fields and update configuration
     if (!ui->direwolfHostEdit->text().isEmpty())
         config->setValue("direwolf/ip", ui->direwolfHostEdit->text());
 
@@ -63,5 +65,6 @@ void Config::on_buttonBox_accepted()
         config->setValue("tracker/user", ui->serverUserEdit->text());
 
     if (!ui->serverPassEdit->text().isEmpty())
-        config->setValue("tracker/password", ui->serverPassEdit->text());
+        config->setValue("tracker/password", ui->serverPassEdit->text()); 
+
 }
