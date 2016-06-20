@@ -13,6 +13,8 @@ Telemetry::Telemetry()
     temp_ext = "0";
     date = "01-01-1979";
     time = "00:00:00";
+    sats = "";
+    a_rate = "";
     gps = "";
     msg = "";
 }
@@ -21,14 +23,15 @@ bool Telemetry::parseData(QString data)
 {
     QStringList fields;
 
-    fields = data.split("/");
-    if (fields.length()>11) {
+    fields = data.split(SEPARATOR);
+    if (fields.length()>TELEMETRY_FIELDS) {
         try {
             //fields[FIELD_LAT] = fields[FIELD_LAT].split("!")[1];
             //fields[FIELD_LON] =  fields[FIELD_LON].split("O")[0];
             date = fields[FIELD_DAT];
             time = fields[FIELD_TIM];
             heading = fields[FIELD_LON].split("O")[1];
+            speed = fields[FIELD_SPD];
             latitude = fields[FIELD_GPS].split("=")[1].split(",")[0];
             longitude = fields[FIELD_GPS].split("=")[1].split(",")[1];
             altitude = fields[FIELD_ALT].split("=")[1];
@@ -36,6 +39,8 @@ bool Telemetry::parseData(QString data)
             temp_int = fields[FIELD_TIN].split("=")[1];
             temp_ext = fields[FIELD_TOU].split("=")[1];
             baro = fields[FIELD_BAR].split("=")[1];
+            sats = fields[FIELD_SAT].split("=")[1];
+            a_rate = fields[FIELD_ASR].split("=")[1];
         }
         catch (int e)
         {
@@ -76,6 +81,9 @@ QString Telemetry::toString()
     data.append(";");
     data.append(speed);
     data.append(";");
+    data.append(sats);
+    data.append(";");
+    data.append(a_rate);
 
     return data;
 }

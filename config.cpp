@@ -40,6 +40,11 @@ Config::Config(QWidget *parent) :
         ui->serverPassEdit->setText(config->value("tracker/password").toString());
     }
 
+    if (config->contains("log/filename"))
+    {
+        ui->logFileEdit->setText(config->value("log/filename").toString());
+    }
+
 }
 
 Config::~Config()
@@ -67,4 +72,17 @@ void Config::on_buttonBox_accepted()
     if (!ui->serverPassEdit->text().isEmpty())
         config->setValue("tracker/password", ui->serverPassEdit->text()); 
 
+    if (!ui->logFileEdit->text().isEmpty())
+        config->setValue("log/filename", ui->logFileEdit->text());
+}
+
+void Config::on_logFileButton_clicked()
+{
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Select Log File"), QDir::homePath(), tr("Log Files (*.txt *.log)"));
+    if (fileName != "")
+    {
+        ui->logFileEdit->setText(fileName);
+    }
 }

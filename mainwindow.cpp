@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QString user;
     QString passwd;
 
-    // check config
+    // check config and init values if empty
     config = new QSettings("ASHAB", "Telemetry");
 
     if (config->contains("direwolf/ip"))
@@ -100,16 +100,48 @@ void MainWindow::readAwgData()
     // parse data
     bool parsed = telemetry->parseData(QString::fromAscii(inData.constData()));
     if (parsed) {
-        fprintf(stderr, "--- %s, %s, %s\n", telemetry->latitude.toAscii().constData(), telemetry->longitude.toAscii().constData(), telemetry->altitude.toAscii().constData());
-        ui->labelLat->setText("Latitud: " + telemetry->latitude);
-        ui->labelLon->setText("Longitud: " + telemetry->longitude);
-        ui->labelAlt->setText("Altitud: " + telemetry->altitude);
-        ui->labelHdg->setText("Heading: " + telemetry->heading);
-        ui->labelSpd->setText("Velocidad: " + telemetry->speed);
-        ui->labelBaro->setText("Baro: " + telemetry->baro);
-        ui->labelBatt->setText(QString::fromUtf8("Batería: ") + telemetry->voltage);
-        ui->labelTin->setText("Temp. Interna: " + telemetry->temp_int);
-        ui->labelTout->setText("Temp. Externa: " + telemetry->temp_ext);
+        if (telemetry->sats.toInt()>3) {
+            QString latitude = QString::fromUtf8("Latitud: ") +
+                    QString::fromUtf8("<a href=\"http://maps.google.com/maps?z=12&t=m&q=loc:") +
+                    telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude +
+                    QString::fromUtf8("\">") +
+                    telemetry->latitude + QString::fromUtf8("</a>");
+            QString longitude = QString::fromUtf8("Longitud: ") +
+                    QString::fromUtf8("<a href=\"http://maps.google.com/maps?z=12&t=m&q=loc:") +
+                    telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude +
+                    QString::fromUtf8("\">") +
+                    telemetry->longitude + QString::fromUtf8("</a>");
+
+            ui->labelLat->setText(latitude);
+            ui->labelLon->setText(longitude);
+        }
+        else
+        {
+            ui->labelLat->setText("Latitud: " + telemetry->latitude);
+            ui->labelLon->setText("Longitud: " + telemetry->longitude);
+        }
+        ui->labelAlt->setText("Altitud: " + telemetry->altitude + " m");
+        ui->labelHdg->setText("Heading: " + telemetry->heading + QString::fromUtf8(" º"));
+        ui->labelSpd->setText("Velocidad: " + telemetry->speed + " kn");
+        ui->labelBaro->setText("Baro: " + telemetry->baro + " mb");
+        ui->labelBatt->setText(QString::fromUtf8("Batería: ") + telemetry->voltage + " V");
+        ui->labelTin->setText("Temp. Interna: " + telemetry->temp_int + QString::fromUtf8(" ºC"));
+        ui->labelTout->setText("Temp. Externa: " + telemetry->temp_ext + QString::fromUtf8(" ºC"));
+        ui->labelSats->setText(QString::fromUtf8("Satélites GPS: ") + telemetry->sats);
+        ui->labelAsr->setText("Ratio Ascenso: " + telemetry->a_rate + " m/s");
+
+        // let's log
+        if (config->contains("log/filename"))
+        {
+            QFile log(config->value("log/filename").toString());
+            if (log.open(QFile::Append)) {
+                QTextStream out(&log);
+                out << telemetry->toString() << endl;
+                out.flush();
+                log.close();
+            }
+        }
+
     }
     lastPacket = new QDateTime(QDateTime::currentDateTimeUtc());
 }

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSettings>
+#include <QFileDialog>
 
 namespace Ui {
 class Config;
@@ -18,6 +19,8 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
+
+    void on_logFileButton_clicked();
 
 private:
     Ui::Config *ui;

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 
+#define TELEMETRY_FIELDS 13
 
 #define FIELD_LAT  0
 #define FIELD_LON  1
@@ -16,7 +17,11 @@
 #define FIELD_DAT  8
 #define FIELD_TIM  9
 #define FIELD_GPS  10
-#define FIELD_MSG  11
+#define FIELD_SAT  11
+#define FIELD_ASR  12
+#define FIELD_MSG  13
+
+#define SEPARATOR "/"
 
 class Telemetry
 {
@@ -33,6 +38,8 @@ public:
     QString date;
     QString time;
     QString gps;
+    QString sats;
+    QString a_rate;
     QString msg;
 
     Telemetry();
