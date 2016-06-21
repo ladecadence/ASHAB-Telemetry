@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QDateTime>
 #include <QTimer>
-#include <QUrl>
+#include <QUrlQuery>
 #include <QNetworkRequest>
 #include "about.h"
 #include "config.h"

@@ -98,7 +98,7 @@ void MainWindow::readAwgData()
     fprintf(stderr, ">>> %s\n", inData.constData());
 
     // parse data
-    bool parsed = telemetry->parseData(QString::fromAscii(inData.constData()));
+    bool parsed = telemetry->parseData(QString::fromLocal8Bit(inData.constData()));
     if (parsed) {
         if (telemetry->sats.toInt()>3) {
             QString latitude = QString::fromUtf8("Latitud: ") +
@@ -219,7 +219,7 @@ void MainWindow::uploadTelemetry()
     if (config->contains("tracker/user") && config->contains("tracker/password"))
     {
         // Setup the webservice url
-        QUrl postData;
+        QUrlQuery postData;
 
         // add the data
         postData.addQueryItem("telemetry", telemetry->toString());
