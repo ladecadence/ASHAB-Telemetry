@@ -8,6 +8,8 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QNetworkRequest>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include "about.h"
 #include "config.h"
 #include "telemetry.h"
@@ -46,6 +48,7 @@ private slots:
     void on_actionSalir_triggered();
     void on_actionConfigurar_triggered();
     void uploadTelemetry();
+    void onPostAnswer(QNetworkReply* reply);
 };
 
 #endif // MAINWINDOW_H
