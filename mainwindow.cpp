@@ -142,6 +142,9 @@ void MainWindow::readAwgData()
             }
         }
 
+        // and upload
+        uploadTelemetry();
+
     }
     lastPacket = new QDateTime(QDateTime::currentDateTimeUtc());
 }
@@ -216,13 +219,17 @@ void MainWindow::on_actionConfigurar_triggered()
 void MainWindow::uploadTelemetry()
 {
     // check for auth data
-    if (config->contains("tracker/user") && config->contains("tracker/password"))
+    if (config->contains("tracker/user") && config->contains("tracker/password") &&
+            config->contains("tracker/database"))
     {
+        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+
         // Setup the webservice url
         QUrlQuery postData;
 
         // add the data
         postData.addQueryItem("telemetry", telemetry->toString());
+        postData.addQueryItem("database", config->value("tracker/database").toString());
         fprintf(stderr, "%s\n", telemetry->toString().toLocal8Bit().constData());
 
         // Auth
@@ -232,6 +239,18 @@ void MainWindow::uploadTelemetry()
 
         QNetworkRequest request(config->value("tracker/url").toString());
         request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+            "application/x-www-form-urlencoded");
+        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
+        networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+        fprintf(stderr, "++++ Uploaded!\n");
+
     }
 
+}
+
+void MainWindow::onPostAnswer(QNetworkReply* reply)
+{
+    fprintf(stderr, "----->>>> %s", reply->readAll().constData());
 }

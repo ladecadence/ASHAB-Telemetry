@@ -40,6 +40,11 @@ Config::Config(QWidget *parent) :
         ui->serverPassEdit->setText(config->value("tracker/password").toString());
     }
 
+    if (config->contains("tracker/database"))
+    {
+        ui->serverDbEdit->setText(config->value("tracker/database").toString());
+    }
+
     if (config->contains("log/filename"))
     {
         ui->logFileEdit->setText(config->value("log/filename").toString());
@@ -70,7 +75,10 @@ void Config::on_buttonBox_accepted()
         config->setValue("tracker/user", ui->serverUserEdit->text());
 
     if (!ui->serverPassEdit->text().isEmpty())
-        config->setValue("tracker/password", ui->serverPassEdit->text()); 
+        config->setValue("tracker/password", ui->serverPassEdit->text());
+
+    if (!ui->serverDbEdit->text().isEmpty())
+        config->setValue("tracker/database", ui->serverDbEdit->text());
 
     if (!ui->logFileEdit->text().isEmpty())
         config->setValue("log/filename", ui->logFileEdit->text());
