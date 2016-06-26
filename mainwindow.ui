@@ -340,6 +340,7 @@
      <string>Ver</string>
     </property>
     <addaction name="actionLog"/>
+    <addaction name="actionMapa"/>
    </widget>
    <addaction name="menuArchivo"/>
    <addaction name="menuVer"/>
@@ -364,6 +365,11 @@
   <action name="actionLog">
    <property name="text">
     <string>Log</string>
+   </property>
+  </action>
+  <action name="actionMapa">
+   <property name="text">
+    <string>Mapa</string>
    </property>
   </action>
  </widget>

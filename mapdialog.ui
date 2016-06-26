@@ -1,34 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LogDialog</class>
- <widget class="QDialog" name="LogDialog">
-  <property name="windowModality">
-   <enum>Qt::NonModal</enum>
-  </property>
+ <class>MapDialog</class>
+ <widget class="QDialog" name="MapDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>697</width>
-    <height>456</height>
+    <width>668</width>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Log </string>
-  </property>
-  <property name="sizeGripEnabled">
-   <bool>false</bool>
+   <string>Mapa</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="logFileLabel">
-     <property name="text">
-      <string>TextLabel</string>
+    <widget class="QWebView" name="webView">
+     <property name="url">
+      <url>
+       <string>about:blank</string>
+      </url>
      </property>
     </widget>
-   </item>
-   <item>
-    <widget class="QTableWidget" name="tableWidget"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -42,12 +35,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKitWidgets/QWebView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>LogDialog</receiver>
+   <receiver>MapDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -63,7 +63,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>LogDialog</receiver>
+   <receiver>MapDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

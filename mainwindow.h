@@ -14,6 +14,7 @@
 #include "config.h"
 #include "telemetry.h"
 #include "logdialog.h"
+#include "mapdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,6 +31,7 @@ public:
     About *aboutDialog;
     Config *configDialog;
     LogDialog *logDialog;
+    MapDialog *mapDialog;
 
 private:
     Ui::MainWindow *ui;
@@ -51,6 +53,7 @@ private slots:
     void uploadTelemetry();
     void onPostAnswer(QNetworkReply* reply);
     void on_actionLog_triggered();
+    void on_actionMapa_triggered();
 };
 
 #endif // MAINWINDOW_H

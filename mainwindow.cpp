@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     aboutDialog = new About(this);
     configDialog = new Config(this);
     logDialog = new LogDialog(this);
+    mapDialog = new MapDialog(this);
 
     ui->setupUi(this);
 
@@ -260,4 +261,10 @@ void MainWindow::on_actionLog_triggered()
 {
     logDialog->loadData();
     logDialog->show();
+}
+
+void MainWindow::on_actionMapa_triggered()
+{
+    mapDialog->updateMap(telemetry->latitude, telemetry->longitude);
+    mapDialog->show();
 }
