@@ -13,7 +13,7 @@
 #include "about.h"
 #include "config.h"
 #include "telemetry.h"
-
+#include "logdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +29,7 @@ public:
     void connectTcp(QString host, qint16 port);
     About *aboutDialog;
     Config *configDialog;
+    LogDialog *logDialog;
 
 private:
     Ui::MainWindow *ui;
@@ -49,6 +50,7 @@ private slots:
     void on_actionConfigurar_triggered();
     void uploadTelemetry();
     void onPostAnswer(QNetworkReply* reply);
+    void on_actionLog_triggered();
 };
 
 #endif // MAINWINDOW_H

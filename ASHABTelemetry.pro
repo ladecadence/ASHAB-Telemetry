@@ -16,16 +16,19 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     about.cpp \
     config.cpp \
-    telemetry.cpp
+    telemetry.cpp \
+    logdialog.cpp
 
 HEADERS  += mainwindow.h \
     about.h \
     config.h \
-    telemetry.h
+    telemetry.h \
+    logdialog.h
 
 FORMS    += mainwindow.ui \
     about.ui \
-    config.ui
+    config.ui \
+    logdialog.ui
 
 RESOURCES += \
     images.qrc

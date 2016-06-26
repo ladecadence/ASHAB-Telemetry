@@ -319,7 +319,7 @@
      <x>0</x>
      <y>0</y>
      <width>671</width>
-     <height>28</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArchivo">
@@ -335,7 +335,14 @@
     </property>
     <addaction name="actionAcerca_de"/>
    </widget>
+   <widget class="QMenu" name="menuVer">
+    <property name="title">
+     <string>Ver</string>
+    </property>
+    <addaction name="actionLog"/>
+   </widget>
    <addaction name="menuArchivo"/>
+   <addaction name="menuVer"/>
    <addaction name="menuAyuda"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -352,6 +359,11 @@
   <action name="actionAcerca_de">
    <property name="text">
     <string>Acerca de...</string>
+   </property>
+  </action>
+  <action name="actionLog">
+   <property name="text">
+    <string>Log</string>
    </property>
   </action>
  </widget>

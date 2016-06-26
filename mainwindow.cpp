@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create UI
     aboutDialog = new About(this);
     configDialog = new Config(this);
+    logDialog = new LogDialog(this);
 
     ui->setupUi(this);
 
@@ -253,4 +254,10 @@ void MainWindow::uploadTelemetry()
 void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
     fprintf(stderr, "----->>>> %s", reply->readAll().constData());
+}
+
+void MainWindow::on_actionLog_triggered()
+{
+    logDialog->loadData();
+    logDialog->show();
 }
