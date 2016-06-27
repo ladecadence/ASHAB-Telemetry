@@ -69,3 +69,28 @@ void LogDialog::on_buttonBox_accepted()
 {
 
 }
+
+void LogDialog::on_tableWidget_itemSelectionChanged()
+{
+    // get selected rows
+    QModelIndexList indexes = ui->tableWidget->selectionModel()->selectedRows();
+    QString clipText;
+    for (int i= 0; i < indexes.size(); i++)
+    {
+        // get elements
+        for (int j = 0; j < ui->tableWidget->model()->columnCount(); j++)
+        {
+            // add them to list
+             clipText.append(ui->tableWidget->model()->data(ui->tableWidget->model()->index(i, j)).toString());
+             if (j < ui->tableWidget->model()->columnCount()-1)
+                 clipText.append(QString::fromUtf8(";"));
+        }
+        clipText.append(QString::fromUtf8("\n"));
+    }
+    qDebug() << clipText;
+
+    // copy to clipboard
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(clipText);
+
+}

@@ -5,6 +5,8 @@
 #include <QSettings>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
+#include <QClipboard>
 
 namespace Ui {
 class LogDialog;
@@ -21,6 +23,8 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
+
+    void on_tableWidget_itemSelectionChanged();
 
 private:
     QSettings *config;
