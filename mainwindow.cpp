@@ -69,6 +69,15 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete telemetry;
+    delete aboutDialog;
+    delete configDialog;
+    delete logDialog;
+    delete mapDialog;
+    delete timer;
+    delete lastPacket;
+    delete config;
+    delete awgSocket;
 }
 
 void MainWindow::connectTcp(QString host, qint16 port)
@@ -85,6 +94,7 @@ void MainWindow::connectTcp(QString host, qint16 port)
     if(awgSocket->waitForConnected() ) {
         awgSocket->write(m_message);
     }
+
 }
 
 void MainWindow::readAwgData()
@@ -147,8 +157,13 @@ void MainWindow::readAwgData()
         // and upload
         uploadTelemetry();
 
+        // update map
+        mapDialog->updateMap(telemetry->latitude, telemetry->longitude);
+
     }
+    delete lastPacket;
     lastPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+
 }
 
 void MainWindow::updatePacketTime()
@@ -170,6 +185,9 @@ void MainWindow::updatePacketTime()
         message.append(" s.");
     }
     ui->statusBar->showMessage(message);
+
+    // free mem
+    delete now;
 
 }
 
@@ -246,15 +264,19 @@ void MainWindow::uploadTelemetry()
             "application/x-www-form-urlencoded");
         connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
         networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
-        fprintf(stderr, "++++ Uploaded!\n");
+
 
     }
+
 
 }
 
 void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
-    fprintf(stderr, "----->>>> %s", reply->readAll().constData());
+    QString replyText = QString::fromUtf8(reply->readAll().constData());
+    fprintf(stderr, "----->>>> %s", replyText.toLocal8Bit().constData());
+    if (replyText.contains("You can pass"))
+            fprintf(stderr, "+++ Uploaded!");
 }
 
 void MainWindow::on_actionLog_triggered()

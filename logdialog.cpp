@@ -15,15 +15,6 @@ void LogDialog::loadData()
     while (ui->tableWidget->rowCount()>0)
         ui->tableWidget->removeRow(0);
 
-     // check config and set filename
-    config = new QSettings("ASHAB", "Telemetry");
-
-    logFile = NULL;
-
-    if (config->contains("log/filename")) {
-        logFile = new QFile(config->value("log/filename").toString());
-        ui->logFileLabel->setText(config->value("log/filename").toString());
-    }
     // prepare table
     ui->tableWidget->setColumnCount(13);
     QStringList headers;
@@ -32,29 +23,39 @@ void LogDialog::loadData()
     headers << "Hdg." << "Vel" << "Sats" << "Ratio Asc.";
     ui->tableWidget->setHorizontalHeaderLabels(headers);
 
-    // ok fill the table
-    if (logFile->open(QIODevice::ReadOnly))
-    {
-        QTextStream in(logFile);
+    // check config and set filename
+    config = new QSettings("ASHAB", "Telemetry");
 
-        // read all lines
-        int lineCount = 0;
-        while (!in.atEnd())
+    logFile = NULL;
+
+    if (config->contains("log/filename")) {
+        logFile = new QFile(config->value("log/filename").toString());
+        ui->logFileLabel->setText(config->value("log/filename").toString());
+
+        // ok fill the table
+        if (logFile->open(QIODevice::ReadOnly))
         {
-            QString line = in.readLine();
-            // split line in fields
-            QStringList list = line.split(";");
-            // create row
-            ui->tableWidget->insertRow(lineCount);
-            for (int i=0; i<13; i++)
-            {
-                // insert items in row
-                QTableWidgetItem *item = new QTableWidgetItem(list.at(i));
-                ui->tableWidget->setItem(lineCount, i, item);
-            }
-            lineCount++;
-        }
+            QTextStream in(logFile);
 
+            // read all lines
+            int lineCount = 0;
+            while (!in.atEnd())
+            {
+                QString line = in.readLine();
+                // split line in fields
+                QStringList list = line.split(";");
+                // create row
+                ui->tableWidget->insertRow(lineCount);
+                for (int i=0; i<13; i++)
+                {
+                    // insert items in row
+                    QTableWidgetItem *item = new QTableWidgetItem(list.at(i));
+                    ui->tableWidget->setItem(lineCount, i, item);
+                }
+                lineCount++;
+            }
+
+        }
     }
 
     ui->tableWidget->resizeColumnsToContents();
@@ -81,9 +82,9 @@ void LogDialog::on_tableWidget_itemSelectionChanged()
         for (int j = 0; j < ui->tableWidget->model()->columnCount(); j++)
         {
             // add them to list
-             clipText.append(ui->tableWidget->model()->data(ui->tableWidget->model()->index(i, j)).toString());
-             if (j < ui->tableWidget->model()->columnCount()-1)
-                 clipText.append(QString::fromUtf8(";"));
+            clipText.append(ui->tableWidget->model()->data(ui->tableWidget->model()->index(i, j)).toString());
+            if (j < ui->tableWidget->model()->columnCount()-1)
+                clipText.append(QString::fromUtf8(";"));
         }
         clipText.append(QString::fromUtf8("\n"));
     }
