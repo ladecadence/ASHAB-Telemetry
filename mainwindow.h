@@ -15,7 +15,6 @@
 #include "config.h"
 #include "telemetry.h"
 #include "logdialog.h"
-#include "mapdialog.h"
 
 namespace Ui {
 class MainWindow;
