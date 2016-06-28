@@ -10,6 +10,7 @@
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QDesktopServices>
 #include "about.h"
 #include "config.h"
 #include "telemetry.h"
@@ -31,7 +32,6 @@ public:
     About *aboutDialog;
     Config *configDialog;
     LogDialog *logDialog;
-    MapDialog *mapDialog;
 
 private:
     Ui::MainWindow *ui;
@@ -53,7 +53,14 @@ private slots:
     void uploadTelemetry();
     void onPostAnswer(QNetworkReply* reply);
     void on_actionLog_triggered();
-    void on_actionMapa_triggered();
+    void on_labelLat_customContextMenuRequested(const QPoint &pos);
+    void openGoogleMaps();
+    void openOpenStreetMap();
+    void copyGoogleMaps();
+    void copyOpenStreetMap();
+    void on_labelLon_customContextMenuRequested(const QPoint &pos);
+    void on_labelLat_linkActivated(const QString &link);
+    void on_labelLon_linkActivated(const QString &link);
 };
 
 #endif // MAINWINDOW_H

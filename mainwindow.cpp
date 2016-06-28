@@ -54,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
     aboutDialog = new About(this);
     configDialog = new Config(this);
     logDialog = new LogDialog(this);
-    mapDialog = new MapDialog(this);
 
     ui->setupUi(this);
 
@@ -73,7 +72,6 @@ MainWindow::~MainWindow()
     delete aboutDialog;
     delete configDialog;
     delete logDialog;
-    delete mapDialog;
     delete timer;
     delete lastPacket;
     delete config;
@@ -157,8 +155,6 @@ void MainWindow::readAwgData()
         // and upload
         uploadTelemetry();
 
-        // update map
-        mapDialog->updateMap(telemetry->latitude, telemetry->longitude);
 
     }
     delete lastPacket;
@@ -285,8 +281,91 @@ void MainWindow::on_actionLog_triggered()
     logDialog->show();
 }
 
-void MainWindow::on_actionMapa_triggered()
+
+void MainWindow::on_labelLat_customContextMenuRequested(const QPoint &pos)
 {
-    mapDialog->updateMap(telemetry->latitude, telemetry->longitude);
-    mapDialog->show();
+        QMenu *menu = new QMenu;
+        menu->addAction(tr("Open OpenStreetMap"), this, SLOT(openOpenStreetMap()));
+        menu->addAction(tr("Copy OpenStreetMap"), this, SLOT(copyOpenStreetMap()));
+        menu->addSeparator();
+        menu->addAction(tr("Open Google Maps"), this, SLOT(openGoogleMaps()));
+        menu->addAction(tr("Copy Google Maps"), this, SLOT(copyGoogleMaps()));
+        menu->exec(this->mapToGlobal(pos));
+}
+
+void MainWindow::copyGoogleMaps()
+{
+    QString url =  QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
+                    telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
+
+    // copy to clipboard
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(url);
+}
+
+
+void MainWindow::copyOpenStreetMap()
+{
+    // OpenStreetMap
+    QString lat = telemetry->latitude;
+    QString lon = telemetry->longitude;
+    if (lat.contains("S"))
+        lat.prepend(("-"));
+    if (lon.contains("W"))
+        lon.prepend("-");
+    QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=") + lat +
+            QString::fromUtf8("&mlon=") + lon + QString::fromUtf8("&zoom=14");
+
+
+    // copy to clipboard
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(url);
+}
+
+void MainWindow::openGoogleMaps()
+{
+    QString url =  QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
+                    telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
+
+    // open
+    QDesktopServices::openUrl(QUrl(url));
+}
+
+
+void MainWindow::openOpenStreetMap()
+{
+    // OpenStreetMap
+    QString lat = telemetry->latitude;
+    QString lon = telemetry->longitude;
+    if (lat.contains("S"))
+        lat.prepend(("-"));
+    if (lon.contains("W"))
+        lon.prepend("-");
+    QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=") + lat +
+            QString::fromUtf8("&mlon=") + lon + QString::fromUtf8("&zoom=14");
+
+
+    // open
+    QDesktopServices::openUrl(QUrl(url));
+}
+
+void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
+{
+    QMenu *menu = new QMenu;
+    menu->addAction(tr("Open OpenStreetMap"), this, SLOT(openOpenStreetMap()));
+    menu->addAction(tr("Copy OpenStreetMap"), this, SLOT(copyOpenStreetMap()));
+    menu->addSeparator();
+    menu->addAction(tr("Open Google Maps"), this, SLOT(openGoogleMaps()));
+    menu->addAction(tr("Copy Google Maps"), this, SLOT(copyGoogleMaps()));
+    menu->exec(this->mapToGlobal(pos));
+}
+
+void MainWindow::on_labelLat_linkActivated(const QString &link)
+{
+    openOpenStreetMap();
+}
+
+void MainWindow::on_labelLon_linkActivated(const QString &link)
+{
+    openOpenStreetMap();
 }

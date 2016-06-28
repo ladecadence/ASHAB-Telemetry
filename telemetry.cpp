@@ -42,7 +42,7 @@ bool Telemetry::parseData(QString data)
             sats = fields[FIELD_SAT].split("=")[1];
             a_rate = fields[FIELD_ASR].split("=")[1];
         }
-        catch (int e)
+        catch (std::exception &e)
         {
             return false;
         }

@@ -6,7 +6,7 @@
 
 QT       += core gui network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = ASHABTelemetry
 TEMPLATE = app
@@ -17,21 +17,18 @@ SOURCES += main.cpp\
     about.cpp \
     config.cpp \
     telemetry.cpp \
-    logdialog.cpp \
-    mapdialog.cpp
+    logdialog.cpp
 
 HEADERS  += mainwindow.h \
     about.h \
     config.h \
     telemetry.h \
-    logdialog.h \
-    mapdialog.h
+    logdialog.h
 
 FORMS    += mainwindow.ui \
     about.ui \
     config.ui \
-    logdialog.ui \
-    mapdialog.ui
+    logdialog.ui
 
 RESOURCES += \
     images.qrc
