@@ -147,6 +147,10 @@ void MaxMinDialog::initData(Telemetry *t)
     ui->tableWidget->item(1, 3)->setText(QString::number(min.temp_int));
     ui->tableWidget->item(1, 4)->setText(QString::number(min.temp_ext));
     ui->tableWidget->item(1, 5)->setText(QString::number(min.a_rate));
+
+    init = true;
+
+    ui->tableWidget->resizeColumnsToContents();
 }
 
 void MaxMinDialog::updateData(Telemetry *t)
@@ -258,6 +262,7 @@ void MaxMinDialog::updateData(Telemetry *t)
             }
         }
 
+    ui->tableWidget->resizeColumnsToContents();
     }
 }
 

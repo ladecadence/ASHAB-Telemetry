@@ -80,6 +80,9 @@ void Config::on_buttonBox_accepted()
     if (!ui->serverDbEdit->text().isEmpty())
         config->setValue("tracker/database", ui->serverDbEdit->text());
 
+    // if it's empty but we have a config value, it was erased, erase it.
+    if (ui->logFileEdit->text().isEmpty() && config->contains("log/filename"))
+        config->remove("log/filename");
     if (!ui->logFileEdit->text().isEmpty())
         config->setValue("log/filename", ui->logFileEdit->text());
 }
