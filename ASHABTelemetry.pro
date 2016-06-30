@@ -17,18 +17,21 @@ SOURCES += main.cpp\
     about.cpp \
     config.cpp \
     telemetry.cpp \
-    logdialog.cpp
+    logdialog.cpp \
+    maxmindialog.cpp
 
 HEADERS  += mainwindow.h \
     about.h \
     config.h \
     telemetry.h \
-    logdialog.h
+    logdialog.h \
+    maxmindialog.h
 
 FORMS    += mainwindow.ui \
     about.ui \
     config.ui \
-    logdialog.ui
+    logdialog.ui \
+    maxmindialog.ui
 
 RESOURCES += \
     images.qrc

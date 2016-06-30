@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         url = config->value("tracker/url").toInt();
     } else {
-        url = "http://ashab.space/tracker/upload.php";
+        url = "http://ashab.space/tracker/upload-couchdb.php";
         config->setValue("tracker/url", url);
     }
 
@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     aboutDialog = new About(this);
     configDialog = new Config(this);
     logDialog = new LogDialog(this);
+    maxMinDialog = new MaxMinDialog(this);
 
     ui->setupUi(this);
 
@@ -69,9 +70,6 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete telemetry;
-    delete aboutDialog;
-    delete configDialog;
-    delete logDialog;
     delete timer;
     delete lastPacket;
     delete config;
@@ -140,6 +138,12 @@ void MainWindow::readAwgData()
         ui->labelSats->setText(QString::fromUtf8("Satélites GPS: ") + telemetry->sats);
         ui->labelAsr->setText("Ratio Ascenso: " + telemetry->a_rate + " m/s");
 
+
+        // update max and min
+        if (!maxMinDialog->isInit())
+            maxMinDialog->initData(telemetry);
+        maxMinDialog->updateData(telemetry);
+
         // let's log
         if (config->contains("log/filename"))
         {
@@ -194,7 +198,7 @@ void MainWindow::on_actionAcerca_de_triggered()
 
 void MainWindow::on_actionSalir_triggered()
 {
-    exit(0);
+    qApp->exit();
 }
 
 void MainWindow::on_actionConfigurar_triggered()
@@ -363,9 +367,16 @@ void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_labelLat_linkActivated(const QString &link)
 {
     openOpenStreetMap();
+    qDebug(link.toLocal8Bit().constData());
 }
 
 void MainWindow::on_labelLon_linkActivated(const QString &link)
 {
     openOpenStreetMap();
+    qDebug(link.toLocal8Bit().constData());
+}
+
+void MainWindow::on_actionMax_Min_triggered()
+{
+    maxMinDialog->show();
 }

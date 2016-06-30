@@ -16,6 +16,18 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>671</width>
+    <height>191</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>671</width>
+    <height>191</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>ASHAB Telemetry</string>
   </property>
@@ -325,7 +337,7 @@
      <x>0</x>
      <y>0</y>
      <width>671</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArchivo">
@@ -346,6 +358,7 @@
      <string>Ver</string>
     </property>
     <addaction name="actionLog"/>
+    <addaction name="actionMax_Min"/>
    </widget>
    <addaction name="menuArchivo"/>
    <addaction name="menuVer"/>
@@ -370,6 +383,11 @@
   <action name="actionLog">
    <property name="text">
     <string>Log</string>
+   </property>
+  </action>
+  <action name="actionMax_Min">
+   <property name="text">
+    <string>Max / Min</string>
    </property>
   </action>
  </widget>

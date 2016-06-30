@@ -15,6 +15,7 @@
 #include "config.h"
 #include "telemetry.h"
 #include "logdialog.h"
+#include "maxmindialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +32,7 @@ public:
     About *aboutDialog;
     Config *configDialog;
     LogDialog *logDialog;
+    MaxMinDialog *maxMinDialog;
 
 private:
     Ui::MainWindow *ui;
@@ -60,6 +62,7 @@ private slots:
     void on_labelLon_customContextMenuRequested(const QPoint &pos);
     void on_labelLat_linkActivated(const QString &link);
     void on_labelLon_linkActivated(const QString &link);
+    void on_actionMax_Min_triggered();
 };
 
 #endif // MAINWINDOW_H
