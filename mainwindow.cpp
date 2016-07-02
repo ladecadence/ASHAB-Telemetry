@@ -136,7 +136,7 @@ void MainWindow::readAwgData()
         ui->labelTin->setText("Temp. Interna: " + telemetry->temp_int + QString::fromUtf8(" ºC"));
         ui->labelTout->setText("Temp. Externa: " + telemetry->temp_ext + QString::fromUtf8(" ºC"));
         ui->labelSats->setText(QString::fromUtf8("Satélites GPS: ") + telemetry->sats);
-        ui->labelAsr->setText("Ratio Ascenso: " + telemetry->a_rate + " m/s");
+        ui->labelAsr->setText("Ratio Asc.: " + telemetry->a_rate + " m/s");
 
 
         // update max and min
