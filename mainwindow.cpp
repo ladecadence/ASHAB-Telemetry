@@ -156,8 +156,9 @@ void MainWindow::readAwgData()
             }
         }
 
-        // and upload
-        uploadTelemetry();
+        // and upload (if it's valid)
+        if (telemetry->sats.toInt() > 3)
+            uploadTelemetry();
 
 
     }
