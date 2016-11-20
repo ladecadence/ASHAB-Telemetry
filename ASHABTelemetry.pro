@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,20 +18,31 @@ SOURCES += main.cpp\
     config.cpp \
     telemetry.cpp \
     logdialog.cpp \
-    maxmindialog.cpp
+    maxmindialog.cpp \
+    rs8.c \
+    ssdv.c \
+    ssdvdialog.cpp \
+    ssdvpicturedialog.cpp
 
 HEADERS  += mainwindow.h \
     about.h \
     config.h \
     telemetry.h \
     logdialog.h \
-    maxmindialog.h
+    maxmindialog.h \
+    lorassdv.h \
+    rs8.h \
+    ssdv.h \
+    ssdvdialog.h \
+    ssdvpicturedialog.h
 
 FORMS    += mainwindow.ui \
     about.ui \
     config.ui \
     logdialog.ui \
-    maxmindialog.ui
+    maxmindialog.ui \
+    ssdvdialog.ui \
+    ssdvpicturedialog.ui
 
 RESOURCES += \
     images.qrc
