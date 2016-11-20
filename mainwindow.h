@@ -11,11 +11,20 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QDesktopServices>
+#include <QSerialPort>
+#include <QShortcut>
 #include "about.h"
 #include "config.h"
 #include "telemetry.h"
 #include "logdialog.h"
 #include "maxmindialog.h"
+#include "ssdvdialog.h"
+#include "lorassdv.h"
+
+
+enum Source {
+    Awg, LoRa
+};
 
 namespace Ui {
 class MainWindow;
@@ -33,6 +42,7 @@ public:
     Config *configDialog;
     LogDialog *logDialog;
     MaxMinDialog *maxMinDialog;
+    SSDVDialog *ssdvDialog;
 
 private:
     Ui::MainWindow *ui;
@@ -44,9 +54,15 @@ private:
     QSettings *config;
     QDateTime *lastPacket;
     QTimer *timer;
+    QAction *exitAction;
+    bool loraSerialPortValid;
+    QSerialPort *loraSerialPort;
+
 
 private slots:
     void readAwgData();
+    void readLoRaSerialData();
+    void readTelemetry(QString data, int source);
     void updatePacketTime();
     void on_actionAcerca_de_triggered();
     void on_actionSalir_triggered();
@@ -63,6 +79,7 @@ private slots:
     void on_labelLat_linkActivated(const QString &link);
     void on_labelLon_linkActivated(const QString &link);
     void on_actionMax_Min_triggered();
+    void on_actionSSDV_triggered();
 };
 
 #endif // MAINWINDOW_H

@@ -31,6 +31,23 @@ MainWindow::MainWindow(QWidget *parent) :
         config->setValue("direwolf/port", port);
     }
 
+    if (config->contains("lora/port"))
+    {
+        // try to open serial port
+        loraSerialPort = new QSerialPort();
+        loraSerialPort->setPortName(config->value("lora/port").toString());
+        loraSerialPort->setBaudRate(115200);
+        if (!loraSerialPort->open(QIODevice::ReadOnly))
+        {
+            loraSerialPortValid = false;
+        }
+        else
+        {
+            loraSerialPortValid = true;
+            connect(loraSerialPort, SIGNAL(readyRead()), SLOT(readLoRaSerialData()));
+        }
+    }
+
     if (config->contains("tracker/url"))
     {
         url = config->value("tracker/url").toInt();
@@ -55,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     configDialog = new Config(this);
     logDialog = new LogDialog(this);
     maxMinDialog = new MaxMinDialog(this);
+    ssdvDialog = new SSDVDialog(this);
 
     ui->setupUi(this);
 
@@ -64,6 +82,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->setScene(scn);
     scn->addPixmap(pixmap);
     ui->graphicsView->fitInView(scn->itemsBoundingRect(),Qt::KeepAspectRatio);
+
+    // add keyboard shortcuts
+    exitAction = new QAction(this);
+    exitAction->setShortcut(Qt::Key_Q | Qt::CTRL);
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(on_actionSalir_triggered()));
+    this->addAction(exitAction);
+
 }
 
 MainWindow::~MainWindow()
@@ -104,9 +129,13 @@ void MainWindow::readAwgData()
             inData.append(c);
     }
     fprintf(stderr, ">>> %s\n", inData.constData());
+    this->readTelemetry(QString::fromLocal8Bit(inData.constData()), Awg);
+}
 
+void MainWindow::readTelemetry(QString data, int source)
+{
     // parse data
-    bool parsed = telemetry->parseData(QString::fromLocal8Bit(inData.constData()));
+    bool parsed = telemetry->parseData(data);
     if (parsed) {
         if (telemetry->sats.toInt()>3) {
             QString latitude = QString::fromUtf8("Latitud: ") +
@@ -167,6 +196,91 @@ void MainWindow::readAwgData()
 
 }
 
+void MainWindow::readLoRaSerialData()
+{
+    QByteArray serialData;
+    // try to read 255 bytes (max for SSDV packet)
+    serialData = loraSerialPort->read(255);
+
+    if (serialData.length()>0)
+    {
+        //qDebug() << serialData.constData();
+        // check first character
+        if (serialData.at(0) == '$' && serialData.at(1) == '$')
+        {
+            // telemetry
+            qDebug() << "Telemetry Packet!";
+            qDebug() << serialData.constData();
+
+            // parse telemetry
+            this->readTelemetry(serialData.constData(), LoRa);
+
+        }
+        else if (serialData.at(0) == 0x66)
+        {
+            int image_num = (int)serialData.at(SSDV_HEADER_IMAGE);
+            int image_packet = (serialData.at(SSDV_HEADER_PACKET_MSB) << 8) + serialData.at(SSDV_HEADER_PACKET_LSB);
+            int is_last_packet = (serialData.at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
+
+            //qDebug() << "SSDV Packet!";
+            //qDebug() << "Image: " << image_num;
+            //qDebug() << "Packet: " << image_packet;
+            //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
+
+            //if (is_last_packet)
+            //    qDebug() << "Last SSDV packet";
+
+            QString status = QString("");
+            status.append("Recibido paquete ").append(QString::number(image_packet)).
+                    append(" de imagen ").
+                    append(QString::number(image_num));
+            // update status msg
+            ssdvDialog->updateStatus(status);
+
+            // output file
+            bool file_opened = false;
+            QString path = QString("");
+            if (config->contains("lora/imgpath"))
+            {
+                path.append(config->value("lora/imgpath").toString());
+            }
+
+            QString fileName;
+            fileName.append(path).append(QDir::separator()).
+                            append(QString("ssdv").
+                                   append(QString::number(image_num)).
+                                   append(".bin"));
+
+
+            QFile ssdv_file(fileName);
+
+            //qDebug() << QFileInfo(ssdv_file).fileName();
+            if (image_packet == 0)
+            {
+                if (ssdv_file.open(QFile::WriteOnly | QFile::Truncate))
+                    file_opened = true;
+            }
+            else
+            {
+                if (ssdv_file.open(QFile::Append))
+                    file_opened = true;
+            }
+            if (file_opened)
+            {
+                ssdv_file.seek(image_packet*256);
+                ssdv_file.putChar(0x55);
+                ssdv_file.write(serialData.constData(), 255);
+                ssdv_file.flush();
+                ssdv_file.close();
+            }
+
+            // add to img recv list
+            ssdvDialog->addImageSSDV(fileName);
+
+        }
+    }
+}
+
 void MainWindow::updatePacketTime()
 {
     QDateTime *now = new QDateTime(QDateTime::currentDateTimeUtc());
@@ -185,6 +299,7 @@ void MainWindow::updatePacketTime()
         message.append(QString::number(seconds));
         message.append(" s.");
     }
+
     ui->statusBar->showMessage(message);
 
     // free mem
@@ -380,4 +495,9 @@ void MainWindow::on_labelLon_linkActivated(const QString &link)
 void MainWindow::on_actionMax_Min_triggered()
 {
     maxMinDialog->show();
+}
+
+void MainWindow::on_actionSSDV_triggered()
+{
+   ssdvDialog->show();
 }

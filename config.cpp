@@ -7,6 +7,11 @@ Config::Config(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // get serial ports
+    Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
+            ui->serialPortCombo->addItem(port.systemLocation());
+    }
+
     // read configuration values
     config = new QSettings("ASHAB", "Telemetry");
     if (config->contains("direwolf/ip"))
@@ -21,6 +26,16 @@ Config::Config(QWidget *parent) :
         ui->direwolfPortEdit->setText(config->value("direwolf/port").toString());
     } else {
         ui->direwolfPortEdit->setText(QString::number(8000));
+    }
+
+    if (config->contains("lora/port"))
+    {
+        ui->serialPortCombo->setCurrentText(config->value("lora/port").toString());
+    }
+
+    if (config->contains("lora/imgpath"))
+    {
+        ui->imgPathEdit->setText(config->value("lora/imgpath").toString());
     }
 
     if (config->contains("tracker/url"))
@@ -68,6 +83,12 @@ void Config::on_buttonBox_accepted()
     if (!ui->direwolfPortEdit->text().isEmpty())
         config->setValue("direwolf/port", ui->direwolfPortEdit->text());
 
+    if (!ui->serialPortCombo->currentText().isEmpty())
+        config->setValue("lora/port", ui->serialPortCombo->currentText());
+
+    if (!ui->imgPathEdit->text().isEmpty())
+        config->setValue("lora/imgpath", ui->imgPathEdit->text());
+
     if (!ui->serverHostEdit->text().isEmpty())
         config->setValue("tracker/url", ui->serverHostEdit->text());
 
@@ -95,5 +116,18 @@ void Config::on_logFileButton_clicked()
     if (fileName != "")
     {
         ui->logFileEdit->setText(fileName);
+    }
+}
+
+void Config::on_imgPathButton_clicked()
+{
+    QString imgPath = QFileDialog::getExistingDirectory(this,
+                                                   tr("Select SSDV Images folder"),
+                                                   QDir::homePath(),
+                                                   QFileDialog::ShowDirsOnly);
+
+    if (imgPath != "")
+    {
+        ui->imgPathEdit->setText(imgPath);
     }
 }

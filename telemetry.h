@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QDebug>
 
 #define TELEMETRY_FIELDS 13
 

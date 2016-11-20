@@ -1,4 +1,9 @@
-#ifndef SSDV_H
-#define SSDV_H
+#ifndef LORASSDV_H
+#define LORASSDV_H
+
+#define SSDV_HEADER_IMAGE 5
+#define SSDV_HEADER_PACKET_MSB 6
+#define SSDV_HEADER_PACKET_LSB 7
+#define SSDV_HEADER_FLAGS 10
 
 #endif // SSDV_H

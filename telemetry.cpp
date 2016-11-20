@@ -24,7 +24,7 @@ bool Telemetry::parseData(QString data)
     QStringList fields;
 
     fields = data.split(SEPARATOR);
-    if (fields.length()>TELEMETRY_FIELDS) {
+    if (fields.length()>=TELEMETRY_FIELDS) {
         try {
             //fields[FIELD_LAT] = fields[FIELD_LAT].split("!")[1];
             //fields[FIELD_LON] =  fields[FIELD_LON].split("O")[0];
@@ -44,6 +44,7 @@ bool Telemetry::parseData(QString data)
         }
         catch (std::exception &e)
         {
+            qDebug() << QString("ERROR Decoding") << e.what();
             return false;
         }
 

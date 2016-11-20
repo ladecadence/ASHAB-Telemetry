@@ -359,6 +359,7 @@
     </property>
     <addaction name="actionLog"/>
     <addaction name="actionMax_Min"/>
+    <addaction name="actionSSDV"/>
    </widget>
    <addaction name="menuArchivo"/>
    <addaction name="menuVer"/>
@@ -388,6 +389,11 @@
   <action name="actionMax_Min">
    <property name="text">
     <string>Max / Min</string>
+   </property>
+  </action>
+  <action name="actionSSDV">
+   <property name="text">
+    <string>SSDV</string>
    </property>
   </action>
  </widget>
