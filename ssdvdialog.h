@@ -4,6 +4,11 @@
 #include <QDialog>
 #include <QStringList>
 #include <QStringListModel>
+#include <QAbstractItemView>
+#include <QFileInfo>
+#include "ssdv.h"
+#include "rs8.h"
+#include "ssdvpicturedialog.h"
 
 namespace Ui {
 class SSDVDialog;
@@ -19,8 +24,12 @@ public:
     void updateStatus(QString status);
     void addImageSSDV(QString path);
 
+private slots:
+    void on_listView_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::SSDVDialog *ui;
+    SSDVPictureDialog *pictureDialog;
     QStringList lista_ssdv_imgs;
     QStringListModel *model;
 };

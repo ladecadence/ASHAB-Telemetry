@@ -198,87 +198,95 @@ void MainWindow::readTelemetry(QString data, int source)
 
 void MainWindow::readLoRaSerialData()
 {
-    QByteArray serialData;
-    // try to read 255 bytes (max for SSDV packet)
-    serialData = loraSerialPort->read(255);
-
-    if (serialData.length()>0)
+    // check for a telemetry packet, or a SSDV packet
+    if ((loraSerialPort->bytesAvailable() < 255 &&
+         loraSerialPort->peek(2)[0] =='$' &&
+         loraSerialPort->peek(2)[1] == '$') || loraSerialPort->bytesAvailable() == 255)
     {
-        //qDebug() << serialData.constData();
-        // check first character
-        if (serialData.at(0) == '$' && serialData.at(1) == '$')
+        QByteArray serialData;
+        // try to read 255 bytes (max for SSDV packet)
+        serialData = loraSerialPort->read(255);
+
+        if (serialData.length()>0)
         {
-            // telemetry
-            qDebug() << "Telemetry Packet!";
-            qDebug() << serialData.constData();
-
-            // parse telemetry
-            this->readTelemetry(serialData.constData(), LoRa);
-
-        }
-        else if (serialData.at(0) == 0x66)
-        {
-            int image_num = (int)serialData.at(SSDV_HEADER_IMAGE);
-            int image_packet = (serialData.at(SSDV_HEADER_PACKET_MSB) << 8) + serialData.at(SSDV_HEADER_PACKET_LSB);
-            int is_last_packet = (serialData.at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
-
-            //qDebug() << "SSDV Packet!";
-            //qDebug() << "Image: " << image_num;
-            //qDebug() << "Packet: " << image_packet;
-            //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
-
-            //if (is_last_packet)
-            //    qDebug() << "Last SSDV packet";
-
-            QString status = QString("");
-            status.append("Recibido paquete ").append(QString::number(image_packet)).
-                    append(" de imagen ").
-                    append(QString::number(image_num));
-            // update status msg
-            ssdvDialog->updateStatus(status);
-
-            // output file
-            bool file_opened = false;
-            QString path = QString("");
-            if (config->contains("lora/imgpath"))
+            //qDebug() << serialData.constData();
+            // check first character
+            if (serialData.at(0) == '$' && serialData.at(1) == '$')
             {
-                path.append(config->value("lora/imgpath").toString());
+                // telemetry
+                qDebug() << "Telemetry Packet!";
+                qDebug() << serialData.constData();
+
+                // parse telemetry
+                this->readTelemetry(serialData.constData(), LoRa);
+
             }
-
-            QString fileName;
-            fileName.append(path).append(QDir::separator()).
-                            append(QString("ssdv").
-                                   append(QString::number(image_num)).
-                                   append(".bin"));
-
-
-            QFile ssdv_file(fileName);
-
-            //qDebug() << QFileInfo(ssdv_file).fileName();
-            if (image_packet == 0)
+            else if (serialData.at(0) == 0x66)
             {
-                if (ssdv_file.open(QFile::WriteOnly | QFile::Truncate))
-                    file_opened = true;
-            }
-            else
-            {
-                if (ssdv_file.open(QFile::Append))
-                    file_opened = true;
-            }
-            if (file_opened)
-            {
-                ssdv_file.seek(image_packet*256);
-                ssdv_file.putChar(0x55);
-                ssdv_file.write(serialData.constData(), 255);
-                ssdv_file.flush();
-                ssdv_file.close();
-            }
 
-            // add to img recv list
-            ssdvDialog->addImageSSDV(fileName);
+                int image_num = (int)serialData.at(SSDV_HEADER_IMAGE);
+                int image_packet = (serialData.at(SSDV_HEADER_PACKET_MSB) << 8) + serialData.at(SSDV_HEADER_PACKET_LSB);
+                int is_last_packet = (serialData.at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
 
+                //qDebug() << "SSDV Packet!";
+                //qDebug() << "Image: " << image_num;
+                //qDebug() << "Packet: " << image_packet;
+                //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
+
+                //if (is_last_packet)
+                //    qDebug() << "Last SSDV packet";
+
+                QString status = QString("");
+                status.append("Recibido paquete ").append(QString::number(image_packet)).
+                        append(" de imagen ").
+                        append(QString::number(image_num));
+                // update status msg
+                ssdvDialog->updateStatus(status);
+
+                // output file
+                bool file_opened = false;
+                QString path = QString("");
+                if (config->contains("lora/imgpath"))
+                {
+                    path.append(config->value("lora/imgpath").toString());
+                }
+
+                QString fileName;
+                fileName.append(path).append(QDir::separator()).
+                        append(QString("ssdv").
+                               append(QString::number(image_num)).
+                               append(".bin"));
+
+
+                QFile ssdv_file(fileName);
+
+                //qDebug() << QFileInfo(ssdv_file).fileName();
+                if (image_packet == 0)
+                {
+                    if (ssdv_file.open(QFile::WriteOnly | QFile::Truncate))
+                        file_opened = true;
+                }
+                else
+                {
+                    if (ssdv_file.open(QFile::Append))
+                        file_opened = true;
+                }
+                if (file_opened)
+                {
+                    ssdv_file.seek(image_packet*256);
+                    ssdv_file.putChar(0x55);
+                    ssdv_file.write(serialData.constData(), 255);
+                    ssdv_file.flush();
+                    ssdv_file.close();
+                }
+
+                // add to img recv list
+                ssdvDialog->addImageSSDV(fileName);
+
+            }
         }
     }
+
 }
 
 void MainWindow::updatePacketTime()
@@ -377,7 +385,7 @@ void MainWindow::uploadTelemetry()
         request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
         request.setHeader(QNetworkRequest::ContentTypeHeader,
-            "application/x-www-form-urlencoded");
+                          "application/x-www-form-urlencoded");
         connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
         networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 
@@ -392,7 +400,7 @@ void MainWindow::onPostAnswer(QNetworkReply* reply)
     QString replyText = QString::fromUtf8(reply->readAll().constData());
     fprintf(stderr, "----->>>> %s", replyText.toLocal8Bit().constData());
     if (replyText.contains("You can pass"))
-            fprintf(stderr, "+++ Uploaded!");
+        fprintf(stderr, "+++ Uploaded!");
 }
 
 void MainWindow::on_actionLog_triggered()
@@ -404,19 +412,19 @@ void MainWindow::on_actionLog_triggered()
 
 void MainWindow::on_labelLat_customContextMenuRequested(const QPoint &pos)
 {
-        QMenu *menu = new QMenu;
-        menu->addAction(tr("Open OpenStreetMap"), this, SLOT(openOpenStreetMap()));
-        menu->addAction(tr("Copy OpenStreetMap"), this, SLOT(copyOpenStreetMap()));
-        menu->addSeparator();
-        menu->addAction(tr("Open Google Maps"), this, SLOT(openGoogleMaps()));
-        menu->addAction(tr("Copy Google Maps"), this, SLOT(copyGoogleMaps()));
-        menu->exec(this->mapToGlobal(pos));
+    QMenu *menu = new QMenu;
+    menu->addAction(tr("Open OpenStreetMap"), this, SLOT(openOpenStreetMap()));
+    menu->addAction(tr("Copy OpenStreetMap"), this, SLOT(copyOpenStreetMap()));
+    menu->addSeparator();
+    menu->addAction(tr("Open Google Maps"), this, SLOT(openGoogleMaps()));
+    menu->addAction(tr("Copy Google Maps"), this, SLOT(copyGoogleMaps()));
+    menu->exec(this->mapToGlobal(pos));
 }
 
 void MainWindow::copyGoogleMaps()
 {
     QString url =  QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
-                    telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
+            telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
 
     // copy to clipboard
     QClipboard *clipboard = QApplication::clipboard();
@@ -445,7 +453,7 @@ void MainWindow::copyOpenStreetMap()
 void MainWindow::openGoogleMaps()
 {
     QString url =  QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
-                    telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
+            telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
 
     // open
     QDesktopServices::openUrl(QUrl(url));
@@ -499,5 +507,5 @@ void MainWindow::on_actionMax_Min_triggered()
 
 void MainWindow::on_actionSSDV_triggered()
 {
-   ssdvDialog->show();
+    ssdvDialog->show();
 }
