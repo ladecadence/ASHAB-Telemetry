@@ -33,6 +33,16 @@ void SSDVDialog::addImageSSDV(QString path){
 
 void SSDVDialog::on_listView_doubleClicked(const QModelIndex &index)
 {
+    // get ssdv file
+    QString path = lista_ssdv_imgs[index.row()];
+
+    // decode it
+    decodeSSDV(path);
+
+}
+
+void SSDVDialog::decodeSSDV(QString path)
+{
     int i=0;
     FILE *fin = stdin;
     FILE *fout = stdout;
@@ -47,8 +57,6 @@ void SSDVDialog::on_listView_doubleClicked(const QModelIndex &index)
 
     callsign[0] = '\0';
 
-    // get ssdv file
-    QString path = lista_ssdv_imgs[index.row()];
     // decoding
     ui->ssdvStatusLabel->setText(QString("Decodificando ").append(QFileInfo(path).fileName()));
 
@@ -108,6 +116,11 @@ void SSDVDialog::on_listView_doubleClicked(const QModelIndex &index)
     ui->ssdvStatusLabel->setText(QString("Decodificados ").append(QString::number(i)).append(" paquetes de ").
                                  append(QFileInfo(path).fileName()));
 
+    showImage(path);
+}
+
+void SSDVDialog::showImage(QString path)
+{
     // let's try to show it
     pictureDialog = new SSDVPictureDialog();
     pictureDialog->loadPicture(path);

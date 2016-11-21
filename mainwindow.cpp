@@ -283,6 +283,12 @@ void MainWindow::readLoRaSerialData()
                 // add to img recv list
                 ssdvDialog->addImageSSDV(fileName);
 
+                // if last packet, decode and open it
+                if (is_last_packet)
+                {
+                    ssdvDialog->decodeSSDV(fileName);
+                }
+
             }
         }
     }
