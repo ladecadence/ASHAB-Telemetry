@@ -58,8 +58,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // start app
-    // AWG packet engine
-    lastPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+    // packet engine
+    lastAwgPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+    lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), SLOT(updatePacketTime()));
     timer->start(1000);
@@ -96,7 +97,8 @@ MainWindow::~MainWindow()
     delete ui;
     delete telemetry;
     delete timer;
-    delete lastPacket;
+    delete lastAwgPacket;
+    delete lastLoRaPacket;
     delete config;
     delete awgSocket;
 }
@@ -132,7 +134,7 @@ void MainWindow::readAwgData()
     this->readTelemetry(QString::fromLocal8Bit(inData.constData()), Awg);
 }
 
-void MainWindow::readTelemetry(QString data, int source)
+bool MainWindow::readTelemetry(QString data, int source)
 {
     // parse data
     bool parsed = telemetry->parseData(data);
@@ -189,10 +191,21 @@ void MainWindow::readTelemetry(QString data, int source)
         if (telemetry->sats.toInt() > 3)
             uploadTelemetry();
 
+        if (source == Awg)
+        {
+            delete lastAwgPacket;
+            lastAwgPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+        }
+        else if (source == LoRa)
+        {
+            delete lastLoRaPacket;
+            lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+        }
 
+        return true;
     }
-    delete lastPacket;
-    lastPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+    else
+        return false;
 
 }
 
@@ -290,7 +303,12 @@ void MainWindow::readLoRaSerialData()
                 }
 
             }
+            // update packet time
+            delete lastLoRaPacket;
+            lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
         }
+
+
     }
 
 }
@@ -298,19 +316,39 @@ void MainWindow::readLoRaSerialData()
 void MainWindow::updatePacketTime()
 {
     QDateTime *now = new QDateTime(QDateTime::currentDateTimeUtc());
-    int seconds = lastPacket->secsTo(*now);
-    QString message = QString::fromUtf8("Último paquete hace: ");
-    if (seconds > 59) {
-        int minutes = seconds / 60;
-        seconds = seconds % 60;
+
+    // AWG
+    int awgSeconds = lastAwgPacket->secsTo(*now);
+    QString message = QString::fromUtf8("Último paquete AWG hace: ");
+    if (awgSeconds > 59) {
+        int minutes = awgSeconds / 60;
+        awgSeconds = awgSeconds % 60;
         message.append(QString::number(minutes));
         message.append(" m, ");
-        message.append(QString::number(seconds));
+        message.append(QString::number(awgSeconds));
         message.append(" s.");
     }
     else
     {
-        message.append(QString::number(seconds));
+        message.append(QString::number(awgSeconds));
+        message.append(" s.");
+    }
+
+    // LoRa
+    message.append(" / Último paquete LoRa hace: ");
+    int loraSeconds = lastLoRaPacket->secsTo(*now);
+
+    if (loraSeconds > 59) {
+        int loraMinutes = loraSeconds / 60;
+        loraSeconds = loraSeconds % 60;
+        message.append(QString::number(loraMinutes));
+        message.append(" m, ");
+        message.append(QString::number(loraSeconds));
+        message.append(" s.");
+    }
+    else
+    {
+        message.append(QString::number(loraSeconds));
         message.append(" s.");
     }
 

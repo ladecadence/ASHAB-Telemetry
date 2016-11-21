@@ -52,7 +52,8 @@ private:
     QDataStream *awgData;
     Telemetry *telemetry;
     QSettings *config;
-    QDateTime *lastPacket;
+    QDateTime *lastAwgPacket;
+    QDateTime *lastLoRaPacket;
     QTimer *timer;
     QAction *exitAction;
     bool loraSerialPortValid;
@@ -62,7 +63,7 @@ private:
 private slots:
     void readAwgData();
     void readLoRaSerialData();
-    void readTelemetry(QString data, int source);
+    bool readTelemetry(QString data, int source);
     void updatePacketTime();
     void on_actionAcerca_de_triggered();
     void on_actionSalir_triggered();
