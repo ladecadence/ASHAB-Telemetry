@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QDebug>
 
-#define TELEMETRY_FIELDS 13
+#define TELEMETRY_FIELDS 14
 
 #define FIELD_LAT  0
 #define FIELD_LON  1

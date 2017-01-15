@@ -25,6 +25,7 @@ public:
     void addImageSSDV(QString path);
     void decodeSSDV(QString path);
     void showImage(QString path);
+    void updateImage(QString path);
 
 private slots:
     void on_listView_doubleClicked(const QModelIndex &index);

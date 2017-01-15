@@ -11,6 +11,7 @@ SSDVDialog::SSDVDialog(QWidget *parent) :
     model->setStringList(lista_ssdv_imgs);
     ui->listView->setModel(model);
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
+    pictureDialog = new SSDVPictureDialog();
 }
 
 SSDVDialog::~SSDVDialog()
@@ -38,6 +39,9 @@ void SSDVDialog::on_listView_doubleClicked(const QModelIndex &index)
 
     // decode it
     decodeSSDV(path);
+
+    // show it
+    showImage(path.append(".jpg"));
 
 }
 
@@ -116,14 +120,20 @@ void SSDVDialog::decodeSSDV(QString path)
     ui->ssdvStatusLabel->setText(QString("Decodificados ").append(QString::number(i)).append(" paquetes de ").
                                  append(QFileInfo(path).fileName()));
 
-    showImage(path);
+    updateImage(path);
 }
 
 void SSDVDialog::showImage(QString path)
 {
     // let's try to show it
-    pictureDialog = new SSDVPictureDialog();
+
     pictureDialog->loadPicture(path);
     pictureDialog->show();
 
 }
+
+void SSDVDialog::updateImage(QString path)
+{
+    pictureDialog->loadPicture(path);
+}
+

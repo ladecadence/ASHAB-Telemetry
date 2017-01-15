@@ -26,6 +26,6 @@ void SSDVPictureDialog::loadPicture(QString picturePath)
     ui->graphicsView->setScene(scn);
     scn->addPixmap(pixmap);
     //ui->graphicsView->fitInView(scn->itemsBoundingRect(),Qt::KeepAspectRatio);
-    ui->graphicsView->scale(ui->graphicsView->width()/scn->width(), ui->graphicsView->height()/scn->height());
+    //ui->graphicsView->scale(ui->graphicsView->width()/scn->width(), ui->graphicsView->height()/scn->height());
 
 }

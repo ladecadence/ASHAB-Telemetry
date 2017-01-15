@@ -26,7 +26,7 @@ private slots:
 
     void on_imgPathButton_clicked();
 
-    void on_ssdvPathButton_clicked();
+    //void on_ssdvPathButton_clicked();
 
 private:
     Ui::Config *ui;

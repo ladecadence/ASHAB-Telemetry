@@ -214,19 +214,27 @@ void MainWindow::readLoRaSerialData()
     // check for a telemetry packet, or a SSDV packet
     if ((loraSerialPort->bytesAvailable() < 255 &&
          loraSerialPort->peek(2)[0] =='$' &&
-         loraSerialPort->peek(2)[1] == '$') || loraSerialPort->bytesAvailable() == 255)
+         loraSerialPort->peek(2)[1] == '$') ||
+         (loraSerialPort->bytesAvailable() == 255))
     {
         QByteArray serialData;
         // try to read 255 bytes (max for SSDV packet)
         serialData = loraSerialPort->read(255);
+        if (serialData.length() < 255) {
+           // more data?
+            loraSerialPort->waitForReadyRead(50);
+            serialData += loraSerialPort->readAll();
+        }
+
 
         if (serialData.length()>0)
         {
             //qDebug() << serialData.constData();
-            // check first character
+            // check first characters
             if (serialData.at(0) == '$' && serialData.at(1) == '$')
             {
                 // telemetry
+
                 qDebug() << "Telemetry Packet!";
                 qDebug() << serialData.constData();
 
@@ -246,8 +254,8 @@ void MainWindow::readLoRaSerialData()
                 //qDebug() << "Packet: " << image_packet;
                 //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
 
-                //if (is_last_packet)
-                //    qDebug() << "Last SSDV packet";
+                if (is_last_packet)
+                    qDebug() << "Last SSDV packet";
 
                 QString status = QString("");
                 status.append("Recibido paquete ").append(QString::number(image_packet)).
@@ -297,20 +305,29 @@ void MainWindow::readLoRaSerialData()
                 ssdvDialog->addImageSSDV(fileName);
 
                 // if last packet, decode and open it
-                if (is_last_packet)
+                //if (is_last_packet)
+                //{
+                //    ssdvDialog->decodeSSDV(fileName);
+                //}
+                if (image_packet == 0)
                 {
                     ssdvDialog->decodeSSDV(fileName);
+                    ssdvDialog->showImage(fileName.append(".jpg"));
+                }
+                else
+                {
+                    ssdvDialog->decodeSSDV(fileName);
+                    ssdvDialog->updateImage(fileName.append(".jpg"));
                 }
 
             }
+
             // update packet time
             delete lastLoRaPacket;
             lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
         }
 
-
     }
-
 }
 
 void MainWindow::updatePacketTime()
@@ -335,21 +352,23 @@ void MainWindow::updatePacketTime()
     }
 
     // LoRa
-    message.append(" / Último paquete LoRa hace: ");
-    int loraSeconds = lastLoRaPacket->secsTo(*now);
+    if (loraSerialPortValid) {
+        message.append(" / Último paquete LoRa hace: ");
+        int loraSeconds = lastLoRaPacket->secsTo(*now);
 
-    if (loraSeconds > 59) {
-        int loraMinutes = loraSeconds / 60;
-        loraSeconds = loraSeconds % 60;
-        message.append(QString::number(loraMinutes));
-        message.append(" m, ");
-        message.append(QString::number(loraSeconds));
-        message.append(" s.");
-    }
-    else
-    {
-        message.append(QString::number(loraSeconds));
-        message.append(" s.");
+        if (loraSeconds > 59) {
+            int loraMinutes = loraSeconds / 60;
+            loraSeconds = loraSeconds % 60;
+            message.append(QString::number(loraMinutes));
+            message.append(" m, ");
+            message.append(QString::number(loraSeconds));
+            message.append(" s.");
+        }
+        else
+        {
+            message.append(QString::number(loraSeconds));
+            message.append(" s.");
+        }
     }
 
     ui->statusBar->showMessage(message);
