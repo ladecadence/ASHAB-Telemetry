@@ -69,11 +69,13 @@ MainWindow::MainWindow(QWidget *parent) :
     telemetry = new Telemetry();
 
     // Create UI
+    consoleDialog = new ConsoleDialog(this);
     aboutDialog = new About(this);
     configDialog = new Config(this);
     logDialog = new LogDialog(this);
     maxMinDialog = new MaxMinDialog(this);
-    ssdvDialog = new SSDVDialog(this);
+    ssdvDialog = new SSDVDialog(this, consoleDialog);
+
 
     ui->setupUi(this);
 
@@ -94,6 +96,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    // kill dialogs
+    consoleDialog->close();
+    aboutDialog->close();
+    configDialog->close();
+    logDialog->close();
+    maxMinDialog->close();
+    ssdvDialog->close();
+
+    delete consoleDialog;
+    delete aboutDialog;
+    delete configDialog;
+    delete logDialog;
+    delete maxMinDialog;
+    delete ssdvDialog;
+
+    // clear memory
     delete ui;
     delete telemetry;
     delete timer;
@@ -187,6 +205,9 @@ bool MainWindow::readTelemetry(QString data, int source)
             }
         }
 
+        // console
+        consoleDialog->append(telemetry->toString());
+
         // and upload (if it's valid)
         if (telemetry->sats.toInt() > 3)
             uploadTelemetry();
@@ -235,8 +256,10 @@ void MainWindow::readLoRaSerialData()
             {
                 // telemetry
 
-                qDebug() << "Telemetry Packet!";
-                qDebug() << serialData.constData();
+                //qDebug() << "Telemetry Packet!";
+                //qDebug() << serialData.constData();
+                consoleDialog->append("Telemetry Packet!");
+                consoleDialog->append(QString::fromLocal8Bit(serialData.constData()));
 
                 // parse telemetry
                 this->readTelemetry(serialData.constData(), LoRa);
@@ -554,13 +577,13 @@ void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_labelLat_linkActivated(const QString &link)
 {
     openOpenStreetMap();
-    qDebug(link.toLocal8Bit().constData());
+    //qDebug(link.toLocal8Bit().constData());
 }
 
 void MainWindow::on_labelLon_linkActivated(const QString &link)
 {
     openOpenStreetMap();
-    qDebug(link.toLocal8Bit().constData());
+    //qDebug(link.toLocal8Bit().constData());
 }
 
 void MainWindow::on_actionMax_Min_triggered()
@@ -571,4 +594,9 @@ void MainWindow::on_actionMax_Min_triggered()
 void MainWindow::on_actionSSDV_triggered()
 {
     ssdvDialog->show();
+}
+
+void MainWindow::on_actionConsole_triggered()
+{
+    consoleDialog->show();
 }

@@ -20,6 +20,7 @@
 #include "maxmindialog.h"
 #include "ssdvdialog.h"
 #include "lorassdv.h"
+#include "consoledialog.h"
 
 
 enum Source {
@@ -43,6 +44,8 @@ public:
     LogDialog *logDialog;
     MaxMinDialog *maxMinDialog;
     SSDVDialog *ssdvDialog;
+    ConsoleDialog *consoleDialog;
+
 
 private:
     Ui::MainWindow *ui;
@@ -81,6 +84,7 @@ private slots:
     void on_labelLon_linkActivated(const QString &link);
     void on_actionMax_Min_triggered();
     void on_actionSSDV_triggered();
+    void on_actionConsole_triggered();
 };
 
 #endif // MAINWINDOW_H

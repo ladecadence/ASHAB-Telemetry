@@ -63,7 +63,7 @@ typedef struct
 	uint8_t  mcu_mode;  /* 0 = 2x2, 1 = 2x1, 2 = 1x2, 3 = 1x1           */
 	uint16_t mcu_id;
 	uint16_t mcu_count;
-	uint8_t  quality;   /* JPEG quality level for encoding, 0-7         */
+    uint8_t  quality;   /* JPEG quality level for encoding, 0-7         */
 	uint16_t packet_mcu_id;
 	uint8_t  packet_mcu_offset;
 	

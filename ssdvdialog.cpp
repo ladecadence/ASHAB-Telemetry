@@ -1,13 +1,15 @@
 #include "ssdvdialog.h"
 #include "ui_ssdvdialog.h"
 
-SSDVDialog::SSDVDialog(QWidget *parent) :
+SSDVDialog::SSDVDialog(QWidget *parent, ConsoleDialog *cons) :
     QDialog(parent),
     ui(new Ui::SSDVDialog)
 {
     ui->setupUi(this);
+    console = cons;
 
     model = new QStringListModel(this);
+    ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     model->setStringList(lista_ssdv_imgs);
     ui->listView->setModel(model);
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -16,6 +18,8 @@ SSDVDialog::SSDVDialog(QWidget *parent) :
 
 SSDVDialog::~SSDVDialog()
 {
+    pictureDialog->close();
+    delete pictureDialog;
     delete ui;
 }
 
@@ -84,12 +88,10 @@ void SSDVDialog::decodeSSDV(QString path)
         /* Test the packet is valid */
         if(ssdv_dec_is_packet(pkt, &errors) != 0) continue;
 
-        if(verbose)
-        {
-            ssdv_packet_info_t p;
+        ssdv_packet_info_t p;
 
-            ssdv_dec_header(&p, pkt);
-            fprintf(stderr, "Decoded image packet. Callsign: %s, Image ID: %d, Resolution: %dx%d, Packet ID: %d (%d errors corrected)\n"
+        ssdv_dec_header(&p, pkt);
+        console->append(QString::asprintf("Decoded image packet. Callsign: %s, Image ID: %d, Resolution: %dx%d, Packet ID: %d (%d errors corrected)\n"
                             ">> Type: %d, Quality: %d, EOI: %d, MCU Mode: %d, MCU Offset: %d, MCU ID: %d/%d\n",
                     p.callsign_s,
                     p.image_id,
@@ -104,8 +106,7 @@ void SSDVDialog::decodeSSDV(QString path)
                     p.mcu_offset,
                     p.mcu_id,
                     p.mcu_count
-                    );
-        }
+                    ));
 
         /* Feed it to the decoder */
         ssdv_dec_feed(&ssdv, pkt);

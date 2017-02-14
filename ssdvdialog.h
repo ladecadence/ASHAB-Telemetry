@@ -9,6 +9,7 @@
 #include "ssdv.h"
 #include "rs8.h"
 #include "ssdvpicturedialog.h"
+#include "consoledialog.h"
 
 namespace Ui {
 class SSDVDialog;
@@ -19,7 +20,7 @@ class SSDVDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SSDVDialog(QWidget *parent = 0);
+    explicit SSDVDialog(QWidget *parent = 0, ConsoleDialog *cons = NULL);
     ~SSDVDialog();
     void updateStatus(QString status);
     void addImageSSDV(QString path);
@@ -35,6 +36,7 @@ private:
     SSDVPictureDialog *pictureDialog;
     QStringList lista_ssdv_imgs;
     QStringListModel *model;
+    ConsoleDialog *console;
 };
 
 #endif // SSDVDIALOG_H
