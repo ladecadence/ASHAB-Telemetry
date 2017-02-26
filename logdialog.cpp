@@ -55,6 +55,8 @@ void LogDialog::loadData()
                 lineCount++;
             }
 
+            logFile->close();
+
         }
     }
 
@@ -93,5 +95,39 @@ void LogDialog::on_tableWidget_itemSelectionChanged()
     // copy to clipboard
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(clipText);
+
+}
+
+QStringList* LogDialog::get_data(int index)
+{
+    QStringList *data = new QStringList();
+
+    // check config and set filename
+    config = new QSettings("ASHAB", "Telemetry");
+
+    if (config->contains("log/filename")) {
+        logFile = new QFile(config->value("log/filename").toString());
+        ui->logFileLabel->setText(config->value("log/filename").toString());
+
+        // ok fill the table
+        if (logFile->open(QIODevice::ReadOnly))
+        {
+            QTextStream in(logFile);
+
+            // read all lines
+            while (!in.atEnd())
+            {
+                QString line = in.readLine();
+                // split line in fields
+                QStringList list = line.split(";");
+                // get item
+                data->append(list.at(index));
+            }
+
+            logFile->close();
+        }
+    }
+
+    return data;
 
 }

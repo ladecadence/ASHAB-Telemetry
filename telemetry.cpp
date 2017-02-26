@@ -51,6 +51,7 @@ bool Telemetry::parseData(QString data)
     }
     else
     {
+        qDebug() << QString("Not enough fields!!");
         return false;
     }
 

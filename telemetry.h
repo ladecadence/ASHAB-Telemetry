@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDebug>
+#include "consoledialog.h"
 
 #define TELEMETRY_FIELDS 14
 
@@ -24,6 +25,7 @@
 
 #define SEPARATOR "/"
 
+
 class Telemetry
 {
 public:
@@ -42,6 +44,7 @@ public:
     QString sats;
     QString a_rate;
     QString msg;
+
 
     Telemetry();
     bool parseData(QString data);

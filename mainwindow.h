@@ -21,6 +21,7 @@
 #include "ssdvdialog.h"
 #include "lorassdv.h"
 #include "consoledialog.h"
+#include "chartsdialog.h"
 
 
 enum Source {
@@ -45,6 +46,7 @@ public:
     MaxMinDialog *maxMinDialog;
     SSDVDialog *ssdvDialog;
     ConsoleDialog *consoleDialog;
+    ChartsDialog *chartsDialog;
 
 
 private:
@@ -61,6 +63,7 @@ private:
     QAction *exitAction;
     bool loraSerialPortValid;
     QSerialPort *loraSerialPort;
+    QByteArray *serialBuffer;
 
 
 private slots:
@@ -85,6 +88,7 @@ private slots:
     void on_actionMax_Min_triggered();
     void on_actionSSDV_triggered();
     void on_actionConsole_triggered();
+    void on_actionGr_ficos_triggered();
 };
 
 #endif // MAINWINDOW_H

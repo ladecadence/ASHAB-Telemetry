@@ -745,11 +745,6 @@
      <number>0</number>
     </property>
    </widget>
-   <zorder>groupBox</zorder>
-   <zorder>groupBox_2</zorder>
-   <zorder>groupBox_3</zorder>
-   <zorder>graphicsView</zorder>
-   <zorder>labelSats</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -780,6 +775,7 @@
     <addaction name="actionLog"/>
     <addaction name="actionMax_Min"/>
     <addaction name="actionSSDV"/>
+    <addaction name="actionGr_ficos"/>
     <addaction name="actionConsole"/>
    </widget>
    <addaction name="menuArchivo"/>
@@ -1236,6 +1232,11 @@
   <action name="actionConsole">
    <property name="text">
     <string>Console</string>
+   </property>
+  </action>
+  <action name="actionGr_ficos">
+   <property name="text">
+    <string>Gráficos</string>
    </property>
   </action>
  </widget>

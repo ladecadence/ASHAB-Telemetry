@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
         else
         {
             loraSerialPortValid = true;
+            // flush data
+            loraSerialPort->clear();
             connect(loraSerialPort, SIGNAL(readyRead()), SLOT(readLoRaSerialData()));
         }
     }
@@ -66,7 +68,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(1000);
     connectTcp(ip, port);
 
-    telemetry = new Telemetry();
 
     // Create UI
     consoleDialog = new ConsoleDialog(this);
@@ -75,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
     logDialog = new LogDialog(this);
     maxMinDialog = new MaxMinDialog(this);
     ssdvDialog = new SSDVDialog(this, consoleDialog);
+    chartsDialog = new ChartsDialog(this, logDialog);
 
 
     ui->setupUi(this);
@@ -91,6 +93,11 @@ MainWindow::MainWindow(QWidget *parent) :
     exitAction->setShortcut(Qt::Key_Q | Qt::CTRL);
     connect(exitAction, SIGNAL(triggered()), this, SLOT(on_actionSalir_triggered()));
     this->addAction(exitAction);
+
+    // Telemetry
+    telemetry = new Telemetry();
+
+    serialBuffer = new QByteArray();
 
 }
 
@@ -206,7 +213,7 @@ bool MainWindow::readTelemetry(QString data, int source)
         }
 
         // console
-        consoleDialog->append(telemetry->toString());
+        // consoleDialog->append(telemetry->toString());
 
         // and upload (if it's valid)
         if (telemetry->sats.toInt() > 3)
@@ -232,125 +239,139 @@ bool MainWindow::readTelemetry(QString data, int source)
 
 void MainWindow::readLoRaSerialData()
 {
-    // check for a telemetry packet, or a SSDV packet
-    if ((loraSerialPort->bytesAvailable() < 255 &&
-         loraSerialPort->peek(2)[0] =='$' &&
-         loraSerialPort->peek(2)[1] == '$') ||
-         (loraSerialPort->bytesAvailable() == 255))
+    // debug
+    // consoleDialog->append("Serial data available");
+
+    // append data to buffer
+    // try to read 255 bytes (max for SSDV packet)
+    serialBuffer->append(loraSerialPort->read(255));
+
+    // qDebug() << serialBuffer->constData() << "\n------\n";
+
+    // check what we have
+
+    // debug packet
+    if (serialBuffer->at(0) == '#' &&
+            serialBuffer->at(1) == '#')
     {
-        QByteArray serialData;
-        // try to read 255 bytes (max for SSDV packet)
-        serialData = loraSerialPort->read(255);
-        if (serialData.length() < 255) {
-           // more data?
-            loraSerialPort->waitForReadyRead(50);
-            serialData += loraSerialPort->readAll();
-        }
+        serialBuffer->clear();
+        return;
+    }
 
-
-        if (serialData.length()>0)
+    // check for a telemetry packet
+    if (serialBuffer->at(0) =='$' &&
+         serialBuffer->at(1) == '$')
+    {
+        // qDebug() << "Telem detected";
+        // telemetry packet (ends in EOL)
+        if (serialBuffer->contains('\n'))
         {
-            //qDebug() << serialData.constData();
-            // check first characters
-            if (serialData.at(0) == '$' && serialData.at(1) == '$')
-            {
-                // telemetry
+            // get EOL position
+            int eol_pos = serialBuffer->indexOf('\n');
+            // get data
+            QByteArray data = serialBuffer->mid(0, eol_pos);
+            // and delete that data from the buffer
+            serialBuffer->clear();
 
-                //qDebug() << "Telemetry Packet!";
-                //qDebug() << serialData.constData();
-                consoleDialog->append("Telemetry Packet!");
-                consoleDialog->append(QString::fromLocal8Bit(serialData.constData()));
+            // ok, parse telemetry
+            consoleDialog->append("Telemetry Packet!");
+            consoleDialog->append(QString::fromLocal8Bit(data.constData()));
 
-                // parse telemetry
-                this->readTelemetry(serialData.constData(), LoRa);
+            // parse telemetry
+            this->readTelemetry(data.constData(), LoRa);
 
-            }
-            else if (serialData.at(0) == 0x66)
-            {
+            return;
 
-                int image_num = (int)serialData.at(SSDV_HEADER_IMAGE);
-                int image_packet = (serialData.at(SSDV_HEADER_PACKET_MSB) << 8) + serialData.at(SSDV_HEADER_PACKET_LSB);
-                int is_last_packet = (serialData.at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
-
-                //qDebug() << "SSDV Packet!";
-                //qDebug() << "Image: " << image_num;
-                //qDebug() << "Packet: " << image_packet;
-                //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
-
-                if (is_last_packet)
-                    qDebug() << "Last SSDV packet";
-
-                QString status = QString("");
-                status.append("Recibido paquete ").append(QString::number(image_packet)).
-                        append(" de imagen ").
-                        append(QString::number(image_num));
-                // update status msg
-                ssdvDialog->updateStatus(status);
-
-                // output file
-                bool file_opened = false;
-                QString path = QString("");
-                if (config->contains("lora/imgpath"))
-                {
-                    path.append(config->value("lora/imgpath").toString());
-                }
-
-                QString fileName;
-                fileName.append(path).append(QDir::separator()).
-                        append(QString("ssdv").
-                               append(QString::number(image_num)).
-                               append(".bin"));
-
-
-                QFile ssdv_file(fileName);
-
-                //qDebug() << QFileInfo(ssdv_file).fileName();
-                if (image_packet == 0)
-                {
-                    if (ssdv_file.open(QFile::WriteOnly | QFile::Truncate))
-                        file_opened = true;
-                }
-                else
-                {
-                    if (ssdv_file.open(QFile::Append))
-                        file_opened = true;
-                }
-                if (file_opened)
-                {
-                    ssdv_file.seek(image_packet*256);
-                    ssdv_file.putChar(0x55);
-                    ssdv_file.write(serialData.constData(), 255);
-                    ssdv_file.flush();
-                    ssdv_file.close();
-                }
-
-                // add to img recv list
-                ssdvDialog->addImageSSDV(fileName);
-
-                // if last packet, decode and open it
-                //if (is_last_packet)
-                //{
-                //    ssdvDialog->decodeSSDV(fileName);
-                //}
-                if (image_packet == 0)
-                {
-                    ssdvDialog->decodeSSDV(fileName);
-                    ssdvDialog->showImage(fileName.append(".jpg"));
-                }
-                else
-                {
-                    ssdvDialog->decodeSSDV(fileName);
-                    ssdvDialog->updateImage(fileName.append(".jpg"));
-                }
-
-            }
-
-            // update packet time
-            delete lastLoRaPacket;
-            lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
         }
+    }
+
+    // no telemetry, SSDV?
+    if (serialBuffer->at(0) == 0x66 && serialBuffer->length() == 255)
+    {
+        // ok, SSDV packet
+        int image_num = (int)serialBuffer->at(SSDV_HEADER_IMAGE);
+        int image_packet = (serialBuffer->at(SSDV_HEADER_PACKET_MSB) << 8) + serialBuffer->at(SSDV_HEADER_PACKET_LSB);
+        int is_last_packet = (serialBuffer->at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
+
+        //qDebug() << "SSDV Packet!";
+        //qDebug() << "Image: " << image_num;
+        //qDebug() << "Packet: " << image_packet;
+        //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
+
+        if (is_last_packet)
+            qDebug() << "Last SSDV packet";
+
+        QString status = QString("");
+        status.append("Recibido paquete ").append(QString::number(image_packet)).
+                append(" de imagen ").
+                append(QString::number(image_num));
+        // update status msg
+        ssdvDialog->updateStatus(status);
+
+        // output file
+        bool file_opened = false;
+        QString path = QString("");
+        if (config->contains("lora/imgpath"))
+        {
+            path.append(config->value("lora/imgpath").toString());
+        }
+
+        QString fileName;
+        fileName.append(path).append(QDir::separator()).
+                append(QString("ssdv").
+                       append(QString::number(image_num)).
+                       append(".bin"));
+
+
+        QFile ssdv_file(fileName);
+
+        //qDebug() << QFileInfo(ssdv_file).fileName();
+        if (image_packet == 0)
+        {
+            if (ssdv_file.open(QFile::WriteOnly | QFile::Truncate))
+                file_opened = true;
+        }
+        else
+        {
+            if (ssdv_file.open(QFile::Append))
+                file_opened = true;
+        }
+        if (file_opened)
+        {
+            ssdv_file.seek(image_packet*256);
+            ssdv_file.putChar(0x55);
+            ssdv_file.write(serialBuffer->constData(), 255);
+            ssdv_file.flush();
+            ssdv_file.close();
+        }
+
+        // add to img recv list
+        ssdvDialog->addImageSSDV(fileName);
+
+        // if last packet, decode and open it
+        //if (is_last_packet)
+        //{
+        //    ssdvDialog->decodeSSDV(fileName);
+        //}
+        if (image_packet == 0)
+        {
+            ssdvDialog->decodeSSDV(fileName);
+            ssdvDialog->showImage(fileName.append(".jpg"));
+        }
+        else
+        {
+            ssdvDialog->decodeSSDV(fileName);
+            ssdvDialog->updateImage(fileName.append(".jpg"));
+        }
+
+        serialBuffer->clear();
 
     }
+
+    // update packet time
+    delete lastLoRaPacket;
+    lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
+
 }
 
 void MainWindow::updatePacketTime()
@@ -599,4 +620,9 @@ void MainWindow::on_actionSSDV_triggered()
 void MainWindow::on_actionConsole_triggered()
 {
     consoleDialog->show();
+}
+
+void MainWindow::on_actionGr_ficos_triggered()
+{
+    chartsDialog->show();
 }

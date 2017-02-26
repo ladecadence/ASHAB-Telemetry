@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     ssdvdialog.cpp \
     ssdvpicturedialog.cpp \
     consoledialog.cpp \
-    ssdv.c
+    ssdv.c \
+    chartsdialog.cpp
 
 HEADERS  += mainwindow.h \
     about.h \
@@ -36,7 +37,8 @@ HEADERS  += mainwindow.h \
     ssdv.h \
     ssdvdialog.h \
     ssdvpicturedialog.h \
-    consoledialog.h
+    consoledialog.h \
+    chartsdialog.h
 
 FORMS    += mainwindow.ui \
     about.ui \
@@ -45,8 +47,8 @@ FORMS    += mainwindow.ui \
     maxmindialog.ui \
     ssdvdialog.ui \
     ssdvpicturedialog.ui \
-    dialogconsole.ui \
-    consoledialog.ui
+    consoledialog.ui \
+    chartsdialog.ui
 
 RESOURCES += \
     images.qrc
