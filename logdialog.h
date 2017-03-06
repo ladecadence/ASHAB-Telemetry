@@ -17,10 +17,11 @@
 #define LOG_BATT 5
 #define LOG_TINT 6
 #define LOG_TOUT 7
-#define LOG_HDG 8
-#define LOG_VELO 9
-#define LOG_SATS 10
-#define LOG_ARATE 11
+#define LOG_BARO 8
+#define LOG_HDG 9
+#define LOG_VELO 10
+#define LOG_SATS 11
+#define LOG_ARATE 12
 
 namespace Ui {
 class LogDialog;

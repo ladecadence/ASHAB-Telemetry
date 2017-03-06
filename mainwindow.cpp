@@ -149,7 +149,7 @@ void MainWindow::readAwgData()
 {
     // check for valid data
     QByteArray inData;
-    while (awgSocket->bytesAvailable() >0) {
+    while (awgSocket->bytesAvailable() > 0) {
         char c;
         awgSocket->getChar(&c);
         if (c!=0)
@@ -163,6 +163,7 @@ bool MainWindow::readTelemetry(QString data, int source)
 {
     // parse data
     bool parsed = telemetry->parseData(data);
+    // and update UI
     if (parsed) {
         if (telemetry->sats.toInt()>3) {
             QString latitude = QString::fromUtf8("Latitud: ") +
@@ -184,6 +185,7 @@ bool MainWindow::readTelemetry(QString data, int source)
             ui->labelLat->setText("Latitud: " + telemetry->latitude);
             ui->labelLon->setText("Longitud: " + telemetry->longitude);
         }
+
         ui->labelAlt->setText("Altitud: " + telemetry->altitude + " m");
         ui->labelHdg->setText("Heading: " + telemetry->heading + QString::fromUtf8(" º"));
         ui->labelSpd->setText("Velocidad: " + telemetry->speed + " kn");
@@ -280,6 +282,7 @@ void MainWindow::readLoRaSerialData()
             // parse telemetry
             this->readTelemetry(data.constData(), LoRa);
 
+
             return;
 
         }
@@ -364,8 +367,15 @@ void MainWindow::readLoRaSerialData()
             ssdvDialog->updateImage(fileName.append(".jpg"));
         }
 
+        // oook, next packet
         serialBuffer->clear();
 
+    }
+    else
+    {
+        // if buffer length is 255+ and no packet detected, clear it
+        if (serialBuffer->length() >= 255)
+            serialBuffer->clear();
     }
 
     // update packet time

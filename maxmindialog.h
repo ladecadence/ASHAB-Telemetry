@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QTextStream>
 #include "telemetry.h"
+#include "logdialog.h"
 
 struct max_min
 {

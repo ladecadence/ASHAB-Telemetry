@@ -13,6 +13,7 @@ About::About(QWidget *parent) :
     ui->graphicsView->setScene(scn);
     scn->addPixmap(pixmap);
     ui->graphicsView->fitInView(scn->itemsBoundingRect(),Qt::KeepAspectRatio);
+    ui->labelBuild->setText(QString::fromLocal8Bit(__DATE__));
 }
 
 About::~About()

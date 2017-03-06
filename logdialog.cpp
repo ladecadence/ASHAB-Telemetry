@@ -90,7 +90,7 @@ void LogDialog::on_tableWidget_itemSelectionChanged()
         }
         clipText.append(QString::fromUtf8("\n"));
     }
-    qDebug() << clipText;
+    // qDebug() << clipText;
 
     // copy to clipboard
     QClipboard *clipboard = QApplication::clipboard();

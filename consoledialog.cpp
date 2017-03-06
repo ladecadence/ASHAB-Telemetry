@@ -7,6 +7,8 @@ ConsoleDialog::ConsoleDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->textEdit->setTextColor(QColor::fromRgbF(0,1,0,1));
+    ui->textEdit->append("ASHAB Telemetry. Build date: " + QString::fromLocal8Bit(__DATE__));
+    ui->textEdit->append("\n");
 }
 
 ConsoleDialog::~ConsoleDialog()

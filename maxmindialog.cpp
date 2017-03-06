@@ -84,13 +84,13 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
                 // split line in fields
                 QStringList list = line.split(";");
                 Telemetry t;
-                t.altitude = list.at(4);
-                t.baro = list.at(8);
-                t.temp_ext = list.at(7);
-                t.temp_int = list.at(6);
-                t.speed = list.at(10);
-                t.a_rate = list.at(12);
-                t.sats = list.at(11);
+                t.altitude = list.at(LOG_ALT);
+                t.baro = list.at(LOG_BARO);
+                t.temp_ext = list.at(LOG_TOUT);
+                t.temp_int = list.at(LOG_TINT);
+                t.speed = list.at(LOG_VELO);
+                t.a_rate = list.at(LOG_ARATE);
+                t.sats = list.at(LOG_SATS);
 
                 // if first line, init values to this
                 if (init == false && t.sats.toFloat() > 3)
@@ -161,35 +161,35 @@ void MaxMinDialog::updateData(Telemetry *t)
         bool ok;
 
         // altitude
-        if (t->altitude.toFloat(&ok) > this->max.alt)
+        if (t->altitude.toFloat(&ok) > max.alt)
         {
             if (ok) {
-                this->max.alt = t->altitude.toFloat();
+                max.alt = t->altitude.toFloat();
                 ui->tableWidget->item(0, 0)->setText(t->altitude);
             }
         }
 
-        if (t->altitude.toFloat(&ok) < this->min.alt)
+        if (t->altitude.toFloat(&ok) < min.alt)
         {
             if (ok) {
-                this->min.alt = t->altitude.toFloat();
+                min.alt = t->altitude.toFloat();
                 ui->tableWidget->item(1, 0)->setText(t->altitude);
             }
         }
 
         // baro
-        if (t->baro.toFloat(&ok) > this->max.baro)
+        if (t->baro.toFloat(&ok) > max.baro)
         {
             if (ok) {
-                this->max.baro = t->baro.toFloat();
+                max.baro = t->baro.toFloat();
                 ui->tableWidget->item(0, 2)->setText(t->baro);
             }
         }
 
-        if (t->baro.toFloat(&ok) < this->min.baro)
+        if (t->baro.toFloat(&ok) < min.baro)
         {
             if (ok) {
-                this->min.baro = t->baro.toFloat();
+                min.baro = t->baro.toFloat();
                 ui->tableWidget->item(1, 2)->setText(t->baro);
             }
         }
