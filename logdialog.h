@@ -9,6 +9,8 @@
 #include <QClipboard>
 #include <QStringList>
 
+#define LOG_FIELDS 13
+
 #define LOG_DATE 0
 #define LOG_HOUR 1
 #define LOG_LAT 2
@@ -35,7 +37,7 @@ public:
     explicit LogDialog(QWidget *parent = 0);
     ~LogDialog();
     void loadData();
-    QStringList* get_data(int index);
+    bool get_data(int index, QStringList* data);
 
 private slots:
     void on_buttonBox_accepted();

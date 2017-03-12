@@ -55,15 +55,13 @@ void SSDVDialog::decodeSSDV(QString path)
     FILE *fin = stdin;
     FILE *fout = stdout;
     int droptest = 0;
-    int verbose = 0;
     int errors;
-    char callsign[7];
     ssdv_t ssdv;
 
     uint8_t pkt[SSDV_PKT_SIZE],  *jpeg;
     size_t jpeg_length;
 
-    callsign[0] = '\0';
+    //callsign[0] = '\0';
 
     // decoding
     ui->ssdvStatusLabel->setText(QString("Decodificando ").append(QFileInfo(path).fileName()));

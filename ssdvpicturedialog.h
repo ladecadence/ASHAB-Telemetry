@@ -2,6 +2,7 @@
 #define SSDVPICTUREDIALOG_H
 
 #include <QDialog>
+#include <QGraphicsScene>
 
 namespace Ui {
 class SSDVPictureDialog;
@@ -21,6 +22,7 @@ private slots:
 
 private:
     Ui::SSDVPictureDialog *ui;
+    QGraphicsScene *scn;
 };
 
 #endif // SSDVPICTUREDIALOG_H

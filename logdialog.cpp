@@ -58,7 +58,11 @@ void LogDialog::loadData()
             logFile->close();
 
         }
+        delete logFile;
     }
+
+    config->sync();
+    delete config;
 
     ui->tableWidget->resizeColumnsToContents();
 }
@@ -98,9 +102,9 @@ void LogDialog::on_tableWidget_itemSelectionChanged()
 
 }
 
-QStringList* LogDialog::get_data(int index)
+bool LogDialog::get_data(int index, QStringList *data)
 {
-    QStringList *data = new QStringList();
+    //QStringList *data = new QStringList();
 
     // check config and set filename
     config = new QSettings("ASHAB", "Telemetry");
@@ -128,6 +132,8 @@ QStringList* LogDialog::get_data(int index)
         }
     }
 
-    return data;
+    delete config;
+    delete logFile;
+    return true;
 
 }

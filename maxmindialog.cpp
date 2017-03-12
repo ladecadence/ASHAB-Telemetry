@@ -83,25 +83,30 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
                 QString line = in.readLine();
                 // split line in fields
                 QStringList list = line.split(";");
-                Telemetry t;
-                t.altitude = list.at(LOG_ALT);
-                t.baro = list.at(LOG_BARO);
-                t.temp_ext = list.at(LOG_TOUT);
-                t.temp_int = list.at(LOG_TINT);
-                t.speed = list.at(LOG_VELO);
-                t.a_rate = list.at(LOG_ARATE);
-                t.sats = list.at(LOG_SATS);
+                if (list.length() >= LOG_FIELDS) {
+                    Telemetry t;
+                    t.altitude = list.at(LOG_ALT);
+                    t.baro = list.at(LOG_BARO);
+                    t.temp_ext = list.at(LOG_TOUT);
+                    t.temp_int = list.at(LOG_TINT);
+                    t.speed = list.at(LOG_VELO);
+                    t.a_rate = list.at(LOG_ARATE);
+                    t.sats = list.at(LOG_SATS);
 
-                // if first line, init values to this
-                if (init == false && t.sats.toFloat() > 3)
-                {
-                    initData(&t);
-                    init = true;
+                    // if first line, init values to this
+                    if (init == false && t.sats.toFloat() > 3)
+                    {
+                        initData(&t);
+                        init = true;
+                    }
+
+                    updateData(&t);
                 }
 
-                updateData(&t);
 
             }
+            logFile->close();
+            delete logFile;
         }
     }
     ui->tableWidget->resizeColumnsToContents();
@@ -109,6 +114,7 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
 
 MaxMinDialog::~MaxMinDialog()
 {
+    delete config;
     delete ui;
 }
 

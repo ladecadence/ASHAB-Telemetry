@@ -6,11 +6,14 @@ SSDVPictureDialog::SSDVPictureDialog(QWidget *parent) :
     ui(new Ui::SSDVPictureDialog)
 {
     ui->setupUi(this);
+    // scene
+    scn = new QGraphicsScene();
 }
 
 SSDVPictureDialog::~SSDVPictureDialog()
 {
     delete ui;
+    delete scn;
 }
 
 void SSDVPictureDialog::on_buttonBox_accepted()
@@ -22,7 +25,6 @@ void SSDVPictureDialog::loadPicture(QString picturePath)
 {
     ui->labelPath->setText(picturePath);
     QPixmap pixmap(picturePath);
-    QGraphicsScene *scn = new QGraphicsScene(); // object defined in header
     ui->graphicsView->setScene(scn);
     scn->addPixmap(pixmap);
     //ui->graphicsView->fitInView(scn->itemsBoundingRect(),Qt::KeepAspectRatio);

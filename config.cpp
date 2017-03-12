@@ -65,6 +65,9 @@ Config::Config(QWidget *parent) :
         ui->logFileEdit->setText(config->value("log/filename").toString());
     }
 
+    config->sync();
+    delete config;
+
 }
 
 Config::~Config()
@@ -106,6 +109,9 @@ void Config::on_buttonBox_accepted()
         config->remove("log/filename");
     if (!ui->logFileEdit->text().isEmpty())
         config->setValue("log/filename", ui->logFileEdit->text());
+
+    config->sync();
+    delete config;
 }
 
 void Config::on_logFileButton_clicked()

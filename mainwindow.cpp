@@ -126,6 +126,8 @@ MainWindow::~MainWindow()
     delete lastLoRaPacket;
     delete config;
     delete awgSocket;
+    delete serialBuffer;
+    delete loraSerialPort;
 }
 
 void MainWindow::connectTcp(QString host, qint16 port)
@@ -169,12 +171,12 @@ bool MainWindow::readTelemetry(QString data, int source)
             QString latitude = QString::fromUtf8("Latitud: ") +
                     QString::fromUtf8("<a href=\"http://maps.google.com/maps?z=12&t=m&q=loc:") +
                     telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude +
-                    QString::fromUtf8("\">") +
+                    QString::fromUtf8("\" style=\"color: #33ccff;\">") +
                     telemetry->latitude + QString::fromUtf8("</a>");
             QString longitude = QString::fromUtf8("Longitud: ") +
                     QString::fromUtf8("<a href=\"http://maps.google.com/maps?z=12&t=m&q=loc:") +
                     telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude +
-                    QString::fromUtf8("\">") +
+                    QString::fromUtf8("\" style=\"color: #33ccff;\">") +
                     telemetry->longitude + QString::fromUtf8("</a>");
 
             ui->labelLat->setText(latitude);
@@ -589,7 +591,6 @@ void MainWindow::openOpenStreetMap()
     QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=") + lat +
             QString::fromUtf8("&mlon=") + lon + QString::fromUtf8("&zoom=14");
 
-
     // open
     QDesktopServices::openUrl(QUrl(url));
 }
@@ -608,13 +609,11 @@ void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_labelLat_linkActivated(const QString &link)
 {
     openOpenStreetMap();
-    //qDebug(link.toLocal8Bit().constData());
 }
 
 void MainWindow::on_labelLon_linkActivated(const QString &link)
 {
     openOpenStreetMap();
-    //qDebug(link.toLocal8Bit().constData());
 }
 
 void MainWindow::on_actionMax_Min_triggered()
