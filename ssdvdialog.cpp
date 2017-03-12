@@ -13,7 +13,7 @@ SSDVDialog::SSDVDialog(QWidget *parent, ConsoleDialog *cons) :
     model->setStringList(lista_ssdv_imgs);
     ui->listView->setModel(model);
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
-    pictureDialog = new SSDVPictureDialog();
+    pictureDialog = new SSDVPictureDialog(parent);
 }
 
 SSDVDialog::~SSDVDialog()

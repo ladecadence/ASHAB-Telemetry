@@ -128,6 +128,8 @@ MainWindow::~MainWindow()
     delete awgSocket;
     delete serialBuffer;
     delete loraSerialPort;
+
+    qApp->exit();
 }
 
 void MainWindow::connectTcp(QString host, qint16 port)
