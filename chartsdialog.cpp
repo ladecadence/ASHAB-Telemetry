@@ -37,8 +37,10 @@ ChartsDialog::~ChartsDialog()
     delete chart;
     delete chartValues;
     delete chartTitles;
-    delete axisX;
-    delete axisY;
+    if (lineSeries->attachedAxes().length() > 0) {
+        delete axisX;
+        delete axisY;
+    }
     delete lineSeries;
     delete ui;
 }

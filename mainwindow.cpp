@@ -493,7 +493,7 @@ void MainWindow::uploadTelemetry()
         // add the data
         postData.addQueryItem("telemetry", telemetry->toString());
         postData.addQueryItem("database", config->value("tracker/database").toString());
-        fprintf(stderr, "%s\n", telemetry->toString().toLocal8Bit().constData());
+        //fprintf(stderr, "%s\n", telemetry->toString().toLocal8Bit().constData());
 
         // Auth
         QString concatenated = config->value("tracker/user").toString() + ":" + config->value("tracker/password").toString();
@@ -508,6 +508,8 @@ void MainWindow::uploadTelemetry()
         connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
         networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 
+        // work done, clean
+        // delete networkManager;
 
     }
 
@@ -517,9 +519,11 @@ void MainWindow::uploadTelemetry()
 void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
     QString replyText = QString::fromUtf8(reply->readAll().constData());
-    fprintf(stderr, "----->>>> %s", replyText.toLocal8Bit().constData());
-    if (replyText.contains("You can pass"))
+    fprintf(stderr, "\n----->>>> %s", replyText.toLocal8Bit().constData());
+    if (replyText.contains("You can pass") && replyText.contains("inserted")) {
         fprintf(stderr, "+++ Uploaded!");
+        consoleDialog->append("Telemetry uploaded to the server!\n");
+    }
 }
 
 void MainWindow::on_actionLog_triggered()
