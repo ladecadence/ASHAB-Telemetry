@@ -177,3 +177,30 @@ void ChartsDialog::update_chart()
 }
 
 
+
+void ChartsDialog::on_saveButton_clicked()
+{
+    QString path;
+
+    // Take file path and name that will create
+    QString newPath = QFileDialog::getSaveFileName(this, trUtf8("Save SVG"),
+                                                   path, tr("SVG files (*.svg)"));
+
+    if (newPath.isEmpty())
+        return;
+
+    path = newPath;
+
+    QSvgGenerator generator;        // Create a file generator object
+    generator.setFileName(path);    // We set the path to the file where to save vector graphics
+    generator.setSize(QSize(ui->chartView->scene()->width(), ui->chartView->scene()->height()));  // Set the dimensions of the working area of the document in millimeters
+    generator.setViewBox(QRect(0, 0, ui->chartView->scene()->width(), ui->chartView->scene()->height())); // Set the work area in the coordinates
+    generator.setTitle(trUtf8("SVG Example"));                          // The title document
+    generator.setDescription(trUtf8("File created by SVG Example"));
+
+    QPainter painter;
+    painter.begin(&generator);
+    ui->chartView->scene()->render(&painter);
+    painter.end();
+
+}

@@ -7,6 +7,8 @@
 #include <QtCore/QDateTime>
 #include <QtCharts/QDateTimeAxis>
 #include <QtCharts/QValueAxis>
+#include <QFileDialog>
+#include <QSvgGenerator>
 #include "logdialog.h"
 
 QT_CHARTS_USE_NAMESPACE
@@ -38,6 +40,8 @@ private slots:
     void on_radioButtonSats_toggled(bool checked);
 
     void on_radioButtonArate_toggled(bool checked);
+
+    void on_saveButton_clicked();
 
 private:
     Ui::ChartsDialog *ui;

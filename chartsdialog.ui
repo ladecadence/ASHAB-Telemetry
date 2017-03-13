@@ -130,6 +130,19 @@
     <string>Ratio de ascenso</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="saveButton">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>500</y>
+     <width>141</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Guardar SVG</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
