@@ -107,4 +107,7 @@ void SSDVPictureDialog::onPostAnswer()
         fprintf(stderr, "+++ Image Uploaded!");
         ui->labelUpload->setText("Uploaded.");
     }
+    else if (replyText.contains("error")) {
+        ui->labelUpload->setText("Error uploading");
+    }
 }

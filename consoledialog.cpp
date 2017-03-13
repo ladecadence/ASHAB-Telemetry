@@ -25,4 +25,5 @@ void ConsoleDialog::clear()
 void ConsoleDialog::append(QString str)
 {   
     ui->textEdit->append(str);
+    ui->textEdit->verticalScrollBar()->setValue(ui->textEdit->verticalScrollBar()->maximum());
 }

@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
+#include <QScrollBar>
 #include "telemetry.h"
 
 namespace Ui {

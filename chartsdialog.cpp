@@ -30,6 +30,11 @@ ChartsDialog::ChartsDialog(QWidget *parent, LogDialog *log) :
                 << "V" << "ºC" << "ºC" <<"mBar"
                 << "" << "" << "#" << "m/s";
 
+    // create first graph
+    chart_type = LOG_ALT;
+    ui->radioButtonAltitude->toggle();
+    update_chart();
+
 }
 
 ChartsDialog::~ChartsDialog()
@@ -148,7 +153,7 @@ void ChartsDialog::update_chart()
     // Axes
     axisX = new QDateTimeAxis;
     axisX->setTickCount(10);
-    axisX->setFormat("dd hh:mm:ss");
+    axisX->setFormat("dd'd' hh:mm:ss");
     axisX->setTitleText("Date");
     axisX->setLabelsAngle(90);
     chart->addAxis(axisX, Qt::AlignBottom);
