@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Telemetry
     telemetry = new Telemetry();
 
+    // LoRa Serial buffer
     serialBuffer = new QByteArray();
 
 }
@@ -203,7 +204,9 @@ bool MainWindow::readTelemetry(QString data, int source)
 
         // update max and min
         if (!maxMinDialog->isInit())
+		{
             maxMinDialog->initData(telemetry);
+		}
         maxMinDialog->updateData(telemetry);
 
         // let's log
@@ -222,7 +225,7 @@ bool MainWindow::readTelemetry(QString data, int source)
         // consoleDialog->append(telemetry->toString());
 
         // and upload (if it's valid)
-        if (telemetry->sats.toInt() > 3)
+        if (telemetry->sats.toInt() >= 0)
             uploadTelemetry();
 
         if (source == Awg)
@@ -248,9 +251,34 @@ void MainWindow::readLoRaSerialData()
     // debug
     // consoleDialog->append("Serial data available");
 
-    // append data to buffer
-    // try to read 255 bytes (max for SSDV packet)
-    serialBuffer->append(loraSerialPort->read(255));
+    // try to sync to telemetry packet
+    //QByteArray data = loraSerialPort->peek(255);
+    //if (data.contains("$$")) {
+    //    int pos = data.indexOf("$$", 0);
+    //    // read up to telemetry marker
+    //    loraSerialPort->read(pos);
+    //}
+
+    // try to receive 255 bytes
+	// if we have data, store it up to 255 bytes
+	if (loraSerialPort->bytesAvailable() > 0)
+	{
+		// check how much we need to read
+		int dif = 255 - serialBuffer->length();
+		if (dif > 0) {
+			serialBuffer->append(
+					loraSerialPort->read(
+						loraSerialPort->bytesAvailable()>dif?dif:loraSerialPort->bytesAvailable()
+						)
+					);
+		}
+	}
+
+	// if data is not 255 bytes, wait for more
+	if (serialBuffer->length() < 255)
+	{
+		return;
+	}
 
     // qDebug() << serialBuffer->constData() << "\n------\n";
 
@@ -262,11 +290,12 @@ void MainWindow::readLoRaSerialData()
     {
         serialBuffer->clear();
         return;
-    }
+    } 
 
-    // check for a telemetry packet
-    if (serialBuffer->at(0) =='$' &&
-         serialBuffer->at(1) == '$')
+	// telemetry packet
+	else if ((serialBuffer->at(0) =='$') &&
+         (serialBuffer->at(1) == '$') &&
+         (serialBuffer->at(serialBuffer->length()-1) == 0))
     {
         // qDebug() << "Telem detected";
         // telemetry packet (ends in EOL)
@@ -286,14 +315,11 @@ void MainWindow::readLoRaSerialData()
             // parse telemetry
             this->readTelemetry(data.constData(), LoRa);
 
-
             return;
-
         }
     }
-
-    // no telemetry, SSDV?
-    if (serialBuffer->at(0) == 0x66 && serialBuffer->length() == 255)
+    // no telemetry, SSDV packet?
+	else if ((serialBuffer->at(0) == 0x66) && (serialBuffer->length() == 255))
     {
         // ok, SSDV packet
         int image_num = (int)serialBuffer->at(SSDV_HEADER_IMAGE);
@@ -312,6 +338,7 @@ void MainWindow::readLoRaSerialData()
         status.append("Recibido paquete ").append(QString::number(image_packet)).
                 append(" de imagen ").
                 append(QString::number(image_num));
+
         // update status msg
         ssdvDialog->updateStatus(status);
 
@@ -333,6 +360,7 @@ void MainWindow::readLoRaSerialData()
         QFile ssdv_file(fileName);
 
         //qDebug() << QFileInfo(ssdv_file).fileName();
+        // first packet? open or append
         if (image_packet == 0)
         {
             if (ssdv_file.open(QFile::WriteOnly | QFile::Truncate))
@@ -371,15 +399,18 @@ void MainWindow::readLoRaSerialData()
             ssdvDialog->updateImage(fileName.append(".jpg"));
         }
 
-        // oook, next packet
+        // ok, next packet
         serialBuffer->clear();
 
     }
     else
     {
-        // if buffer length is 255+ and no packet detected, clear it
-        if (serialBuffer->length() >= 255)
-            serialBuffer->clear();
+        // try to sync to LoRa or telemetry packet
+		if (serialBuffer->contains("$$"))
+		{
+			int index = serialBuffer->indexOf("$$");
+            serialBuffer->remove(0, index-1);
+		}
     }
 
     // update packet time
@@ -494,6 +525,7 @@ void MainWindow::uploadTelemetry()
 
         // add the data
         postData.addQueryItem("telemetry", telemetry->toString());
+        postData.addQueryItem("image", "");
         postData.addQueryItem("database", config->value("tracker/database").toString());
         //fprintf(stderr, "%s\n", telemetry->toString().toLocal8Bit().constData());
 
@@ -612,13 +644,36 @@ void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
     menu->exec(this->mapToGlobal(pos));
 }
 
+uint32_t MainWindow::encodeCallsign(char* callsign) 
+{
+	uint32_t x;
+	char *c;
+	
+	/* Point c at the end of the callsign, maximum of 6 characters */
+	for(x = 0, c = callsign; x < SSDV_MAX_CALLSIGN && *c; x++, c++);
+	
+	/* Encode it backwards */
+	x = 0;
+	for(c--; c >= callsign; c--)
+	{
+		x *= 40;
+		if(*c >= 'A' && *c <= 'Z') x += *c - 'A' + 14;
+		else if(*c >= 'a' && *c <= 'z') x += *c - 'a' + 14;
+		else if(*c >= '0' && *c <= '9') x += *c - '0' + 1;
+	}
+	
+	return(x);
+}
+
 void MainWindow::on_labelLat_linkActivated(const QString &link)
 {
+	qDebug() << link;
     openOpenStreetMap();
 }
 
 void MainWindow::on_labelLon_linkActivated(const QString &link)
 {
+	qDebug() << link;
     openOpenStreetMap();
 }
 
