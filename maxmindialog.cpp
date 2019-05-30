@@ -162,7 +162,8 @@ void MaxMinDialog::initData(Telemetry *t)
 void MaxMinDialog::updateData(Telemetry *t)
 {
     // get max and min only if valid data
-    if (t->sats.toFloat()>3)
+    // if (t->sats.toFloat()>3)
+	if (true)
     {
         bool ok;
 
@@ -220,6 +221,7 @@ void MaxMinDialog::updateData(Telemetry *t)
         // temp ext
         if (t->temp_ext.toFloat(&ok) > this->max.temp_ext)
         {
+			printf("ext temp +\n");
             if (ok) {
                 this->max.temp_ext = t->temp_ext.toFloat();
                 ui->tableWidget->item(0, 4)->setText(t->temp_ext);
@@ -228,6 +230,7 @@ void MaxMinDialog::updateData(Telemetry *t)
 
         if (t->temp_ext.toFloat(&ok)<this->min.temp_ext)
         {
+			printf("ext temp -\n");
             if (ok) {
                 this->min.temp_ext = t->temp_ext.toFloat();
                 ui->tableWidget->item(1,4)->setText(t->temp_ext);
