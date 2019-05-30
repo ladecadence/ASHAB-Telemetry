@@ -64,7 +64,8 @@ private:
     bool loraSerialPortValid;
     QSerialPort *loraSerialPort;
     QByteArray *serialBuffer;
-
+	
+	uint32_t encodeCallsign(char* callsign);
 
 private slots:
     void readAwgData();
