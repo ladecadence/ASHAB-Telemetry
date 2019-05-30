@@ -130,10 +130,11 @@ bool LogDialog::get_data(int index, QStringList *data)
 
             logFile->close();
         }
+
+    	delete logFile;
     }
 
     delete config;
-    delete logFile;
     return true;
 
 }
