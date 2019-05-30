@@ -47,6 +47,7 @@ void SSDVPictureDialog::on_uploadButton_clicked()
         ui->labelUpload->setText("");
         QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
 
+        // POST content
         QString bound="margin";
         QByteArray data(QString("--" + bound + "\r\n").toLocal8Bit());
         data.append("Content-Disposition: form-data; name=\"image\"\r\n\r\n");
@@ -68,29 +69,20 @@ void SSDVPictureDialog::on_uploadButton_clicked()
 
         file.close();
 
-
         // Auth
         QString concatenated = config->value("tracker/user").toString() + ":" + config->value("tracker/password").toString();
         QByteArray authData = concatenated.toLocal8Bit().toBase64();
         QString headerData = "Basic " + authData;
 
+        // request
         QNetworkRequest request(config->value("tracker/url").toString());
         request.setRawHeader("Authorization", headerData.toLocal8Bit());
-
-        //request.setHeader(QNetworkRequest::ContentTypeHeader,
-        //                  "application/x-www-form-urlencoded");
 
         request.setRawHeader(QString("Content-Type").toLocal8Bit(),QString("multipart/form-data; boundary=" + bound).toLocal8Bit());
         request.setRawHeader(QString("Content-Length").toLocal8Bit(), QString::number(data.length()).toLocal8Bit());
 
-        //connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
         reply = networkManager->post(request, data);
         connect(reply, SIGNAL(finished()), this, SLOT  (onPostAnswer()));
-
-        //multiPart->setParent(reply);
-
-        // work done, clean
-        // delete networkManager;
     }
 
     delete config;
