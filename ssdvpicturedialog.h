@@ -36,7 +36,7 @@ private:
     QSettings *config;
     QGraphicsScene *scn;
     QString pictureName;
-    QNetworkAcessManager *manager;
+    QNetworkAccessManager *networkManager;
     QNetworkReply *reply;
 };
 
