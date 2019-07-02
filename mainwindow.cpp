@@ -518,7 +518,7 @@ void MainWindow::uploadTelemetry()
     if (config->contains("tracker/user") && config->contains("tracker/password") &&
             config->contains("tracker/database"))
     {
-        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+        networkManager = new QNetworkAccessManager(this);
 
         // Setup the webservice url
         QUrlQuery postData;
@@ -543,7 +543,6 @@ void MainWindow::uploadTelemetry()
         networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 
         // work done, clean
-        // delete networkManager;
 
     }
 
@@ -558,6 +557,9 @@ void MainWindow::onPostAnswer(QNetworkReply* reply)
         fprintf(stderr, "+++ Uploaded!");
         consoleDialog->append("Telemetry uploaded to the server!\n");
     }
+
+    reply->deleteLater();
+    networkManager->deleteLater();
 }
 
 void MainWindow::on_actionLog_triggered()

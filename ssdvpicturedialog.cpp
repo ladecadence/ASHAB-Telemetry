@@ -45,50 +45,69 @@ void SSDVPictureDialog::on_uploadButton_clicked()
         // disable upload button
         ui->uploadButton->setEnabled(false);
         ui->labelUpload->setText("");
-        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
 
-        // POST content
-        QString bound="margin";
-        QByteArray data(QString("--" + bound + "\r\n").toLocal8Bit());
-        data.append("Content-Disposition: form-data; name=\"image\"\r\n\r\n");
-        data.append(pictureName + QString("\r\n"));
-        data.append(QString("--" + bound + "\r\n").toLocal8Bit());
-        data.append("Content-Disposition: form-data; name=\"uploaded\"; filename=\"");
-        data.append(pictureName);
-        data.append("\"\r\n");
-        data.append("Content-Type: image/jpg\r\n\r\n"); //data type
+        networkManager = new QNetworkAccessManager(this);
 
-        QFile file(pictureName);
+		// Setup the webservice url
+        QUrlQuery postData;
+
+        // add the data
+        postData.addQueryItem("telemetry", "");
+		QFileInfo fi(pictureName);
+		qDebug() << fi.fileName();
+        postData.addQueryItem("image", fi.fileName());
+        postData.addQueryItem("database", "");
+
+		// image data
+		QFile file(pictureName);
         if (!file.open(QIODevice::ReadOnly)){
             return;
         }
 
-        data.append(file.readAll());
-        data.append("\r\n");
-        data.append("--" + bound + "--\r\n");  //closing boundary according to rfc 1867
 
-        file.close();
+		QByteArray imageData = file.readAll().toBase64();
+		file.close();
+
 
         // Auth
         QString concatenated = config->value("tracker/user").toString() + ":" + config->value("tracker/password").toString();
-        QByteArray authData = concatenated.toLocal8Bit().toBase64();
-        QString headerData = "Basic " + authData;
+        QByteArray data = concatenated.toLocal8Bit().toBase64();
+        QString headerData = "Basic " + data;
 
-        // request
-        QNetworkRequest request(config->value("tracker/url").toString());
-        request.setRawHeader("Authorization", headerData.toLocal8Bit());
+        //QNetworkRequest request(config->value("tracker/url").toString());
+        QNetworkRequest request;
 
-        request.setRawHeader(QString("Content-Type").toLocal8Bit(),QString("multipart/form-data; boundary=" + bound).toLocal8Bit());
-        request.setRawHeader(QString("Content-Length").toLocal8Bit(), QString::number(data.length()).toLocal8Bit());
+		QUrl url(config->value("tracker/url").toString());
+		url.setQuery(postData);
+		request.setUrl(url);
 
-        reply = networkManager->post(request, data);
-        connect(reply, SIGNAL(finished()), this, SLOT  (onPostAnswer()));
+     	request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+		request.setHeader(QNetworkRequest::ContentTypeHeader,
+							"text/plain");
+        //                    "application/x-www-form-urlencoded");
+
+
+		connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
+
+		// make the post
+        //networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+		qDebug() << "REQUEST---------------------";
+		qDebug() << request.url().toString();
+  		const QList<QByteArray>& rawHeaderList(request.rawHeaderList());
+  		foreach (QByteArray rawHeader, rawHeaderList) {
+    		qDebug() << request.rawHeader(rawHeader);
+  		}
+		qDebug() << "---------------------";
+
+		networkManager->post(request, imageData);
+
     }
 
     delete config;
 }
 
-void SSDVPictureDialog::onPostAnswer()
+void SSDVPictureDialog::onPostAnswer(QNetworkReply* reply)
 {
     // enable button
     ui->uploadButton->setEnabled(true);
@@ -102,4 +121,8 @@ void SSDVPictureDialog::onPostAnswer()
     else if (replyText.contains("error")) {
         ui->labelUpload->setText("Error uploading");
     }
+
+    // clean
+    reply->deleteLater();
+    networkManager->deleteLater();
 }

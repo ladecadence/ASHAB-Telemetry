@@ -64,6 +64,7 @@ private:
     bool loraSerialPortValid;
     QSerialPort *loraSerialPort;
     QByteArray *serialBuffer;
+    QNetworkAccessManager *networkManager;
 	
 	uint32_t encodeCallsign(char* callsign);
 

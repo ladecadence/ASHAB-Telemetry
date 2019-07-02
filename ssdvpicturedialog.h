@@ -10,6 +10,7 @@
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include <QFile>
+#include <QFileInfo>
 #include <QGraphicsScene>
 
 namespace Ui {
@@ -28,13 +29,14 @@ public:
 private slots:
     void on_buttonBox_accepted();
     void on_uploadButton_clicked();
-    void onPostAnswer();
+    void onPostAnswer(QNetworkReply *reply);
 
 private:
     Ui::SSDVPictureDialog *ui;
     QSettings *config;
     QGraphicsScene *scn;
     QString pictureName;
+    QNetworkAcessManager *manager;
     QNetworkReply *reply;
 };
 
