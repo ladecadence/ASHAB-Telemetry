@@ -248,46 +248,40 @@ bool MainWindow::readTelemetry(QString data, int source)
 
 void MainWindow::readLoRaSerialData()
 {
-    // debug
-    // consoleDialog->append("Serial data available");
-
-    // try to sync to telemetry packet
-    //QByteArray data = loraSerialPort->peek(255);
-    //if (data.contains("$$")) {
-    //    int pos = data.indexOf("$$", 0);
-    //    // read up to telemetry marker
-    //    loraSerialPort->read(pos);
-    //}
-
-    // try to receive 255 bytes
-	// if we have data, store it up to 255 bytes
+    // try to receive a packet
+    // packets start with 0xAA, 0x55, 0xAA, 0x55
+    // and end with 0x33, 0xCC, 0x33, 0xCC
+    // if we have data, store it up
 	if (loraSerialPort->bytesAvailable() > 0)
 	{
-		// check how much we need to read
-		int dif = 255 - serialBuffer->length();
-		if (dif > 0) {
-			serialBuffer->append(
-					loraSerialPort->read(
-						loraSerialPort->bytesAvailable()>dif?dif:loraSerialPort->bytesAvailable()
-						)
-					);
-		}
-	}
+        // read data
+        serialBuffer->append(loraSerialPort->readAll());
 
-	// if data is not 255 bytes, wait for more
-	if (serialBuffer->length() < 255)
-	{
-		return;
-	}
+        // check for end of packet
+        if (!serialBuffer->endsWith(QByteArray::fromHex("33CC33CC"))) {
+            // ok, perhaps we are not finished reading serial data, so return
+            return;
+        } else {
+            // ok, correct packet ending, check for start
+            if (!serialBuffer->startsWith(QByteArray::fromHex("AA55AA55"))) {
+                // wrong start, discard data and keep reading
+                serialBuffer->clear();
+                return;
+            }
+        }
+    }
 
-    // qDebug() << serialBuffer->constData() << "\n------\n";
+    // if we reach here, we have correct start and end
+    // remove start and end
+    serialBuffer->remove(0, 4);
+    serialBuffer->chop(4);
 
     // check what we have
+    // qDebug() << serialBuffer->data();
 
     // debug packet
     if (serialBuffer->at(0) == '#' &&
-            serialBuffer->at(1) == '#')
-    {
+            serialBuffer->at(1) == '#') {
         serialBuffer->clear();
         return;
     } 
@@ -295,41 +289,25 @@ void MainWindow::readLoRaSerialData()
 	// telemetry packet
 	else if ((serialBuffer->at(0) =='$') &&
          (serialBuffer->at(1) == '$') &&
-         (serialBuffer->at(serialBuffer->length()-1) == 0))
-    {
-        // qDebug() << "Telem detected";
-        // telemetry packet (ends in EOL)
-        if (serialBuffer->contains('\n'))
-        {
-            // get EOL position
-            int eol_pos = serialBuffer->indexOf('\n');
-            // get data
-            QByteArray data = serialBuffer->mid(0, eol_pos);
+         (serialBuffer->at(serialBuffer->length()-1) == '\n')) {
+
+            QByteArray telem_data = QByteArray::fromRawData(serialBuffer->constData(), serialBuffer->length());
             // and delete that data from the buffer
             serialBuffer->clear();
 
             // ok, parse telemetry
             consoleDialog->append("Telemetry Packet!");
-            consoleDialog->append(QString::fromLocal8Bit(data.constData()));
+            consoleDialog->append(QString::fromLocal8Bit(telem_data.constData()));
 
             // parse telemetry
-            this->readTelemetry(data.constData(), LoRa);
+            this->readTelemetry(telem_data.constData(), LoRa);
 
             return;
-        }
-    }
-    // no telemetry, SSDV packet?
-	else if ((serialBuffer->at(0) == 0x66) && (serialBuffer->length() == 255))
-    {
+    } else if ((serialBuffer->at(0) == 0x66) && (serialBuffer->length() == 255)) {
         // ok, SSDV packet
         int image_num = (int)serialBuffer->at(SSDV_HEADER_IMAGE);
         int image_packet = (serialBuffer->at(SSDV_HEADER_PACKET_MSB) << 8) + serialBuffer->at(SSDV_HEADER_PACKET_LSB);
         int is_last_packet = (serialBuffer->at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
-
-        //qDebug() << "SSDV Packet!";
-        //qDebug() << "Image: " << image_num;
-        //qDebug() << "Packet: " << image_packet;
-        //qDebug() << "Flags: " << QString::number(serialData.at(SSDV_HEADER_FLAGS), 2);
 
         if (is_last_packet)
             qDebug() << "Last SSDV packet";
@@ -359,7 +337,6 @@ void MainWindow::readLoRaSerialData()
 
         QFile ssdv_file(fileName);
 
-        //qDebug() << QFileInfo(ssdv_file).fileName();
         // first packet? open or append
         if (image_packet == 0)
         {
@@ -367,14 +344,14 @@ void MainWindow::readLoRaSerialData()
                 file_opened = true;
         }
         else
-        {
+        {   // just append
             if (ssdv_file.open(QFile::Append))
                 file_opened = true;
         }
         if (file_opened)
         {
             ssdv_file.seek(image_packet*256);
-            ssdv_file.putChar(0x55);
+            ssdv_file.putChar(0x55); // add removed sync byte
             ssdv_file.write(serialBuffer->constData(), 255);
             ssdv_file.flush();
             ssdv_file.close();
@@ -383,11 +360,7 @@ void MainWindow::readLoRaSerialData()
         // add to img recv list
         ssdvDialog->addImageSSDV(fileName);
 
-        // if last packet, decode and open it
-        //if (is_last_packet)
-        //{
-        //    ssdvDialog->decodeSSDV(fileName);
-        //}
+        // show or update image (first packet or not?)
         if (image_packet == 0)
         {
             ssdvDialog->decodeSSDV(fileName);
@@ -405,12 +378,9 @@ void MainWindow::readLoRaSerialData()
     }
     else
     {
-        // try to sync to LoRa or telemetry packet
-		if (serialBuffer->contains("$$"))
-		{
-			int index = serialBuffer->indexOf("$$");
-            serialBuffer->remove(0, index-1);
-		}
+        // no valid data, clear buffer
+        serialBuffer->clear();
+
     }
 
     // update packet time
@@ -552,7 +522,7 @@ void MainWindow::uploadTelemetry()
 void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
     QString replyText = QString::fromUtf8(reply->readAll().constData());
-    fprintf(stderr, "\n----->>>> %s", replyText.toLocal8Bit().constData());
+    fprintf(stderr, "\n----->>>> %s\n", replyText.toLocal8Bit().constData());
     if (replyText.contains("You can pass") && replyText.contains("inserted")) {
         fprintf(stderr, "+++ Uploaded!");
         consoleDialog->append("Telemetry uploaded to the server!\n");
