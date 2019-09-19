@@ -14,33 +14,25 @@
 QT_CHARTS_USE_NAMESPACE
 
 namespace Ui {
-class ChartsDialog;
+    class ChartsDialog;
 }
 
-class ChartsDialog : public QDialog
-{
+class ChartsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ChartsDialog(QWidget *parent = 0, LogDialog *log = NULL);
+    explicit ChartsDialog(QWidget *parent = nullptr, LogDialog *log = nullptr);
     ~ChartsDialog();
     void update_chart();
 
 private slots:
     void on_radioButtonAltitude_toggled(bool checked);
-
     void on_radioButtonTint_toggled(bool checked);
-
     void on_radioButtonText_toggled(bool checked);
-
     void on_radioButtonBaro_toggled(bool checked);
-
     void on_radioButtonBatt_toggled(bool checked);
-
     void on_radioButtonSats_toggled(bool checked);
-
     void on_radioButtonArate_toggled(bool checked);
-
     void on_saveButton_clicked();
 
 private:

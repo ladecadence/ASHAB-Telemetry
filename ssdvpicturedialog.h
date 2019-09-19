@@ -14,15 +14,14 @@
 #include <QGraphicsScene>
 
 namespace Ui {
-class SSDVPictureDialog;
+    class SSDVPictureDialog;
 }
 
-class SSDVPictureDialog : public QDialog
-{
+class SSDVPictureDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SSDVPictureDialog(QWidget *parent = 0);
+    explicit SSDVPictureDialog(QWidget *parent = nullptr);
     ~SSDVPictureDialog();
     void loadPicture(QString picturePath);
 

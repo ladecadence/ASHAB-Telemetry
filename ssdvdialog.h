@@ -12,15 +12,15 @@
 #include "consoledialog.h"
 
 namespace Ui {
-class SSDVDialog;
+    class SSDVDialog;
 }
 
-class SSDVDialog : public QDialog
-{
+class SSDVDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SSDVDialog(QWidget *parent = 0, ConsoleDialog *cons = NULL);
+    explicit SSDVDialog(QWidget *parent = nullptr,
+                        ConsoleDialog *cons = nullptr);
     ~SSDVDialog();
     void updateStatus(QString status);
     void addImageSSDV(QString path);

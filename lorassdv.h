@@ -8,4 +8,4 @@
 #define SSDV_HEADER_PACKET_LSB 7
 #define SSDV_HEADER_FLAGS 10
 
-#endif // SSDV_H
+#endif // LORASSDV_H

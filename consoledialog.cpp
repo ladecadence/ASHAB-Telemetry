@@ -7,7 +7,8 @@ ConsoleDialog::ConsoleDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->textEdit->setTextColor(QColor::fromRgbF(0,1,0,1));
-    ui->textEdit->append("ASHAB Telemetry. Build date: " + QString::fromLocal8Bit(__DATE__));
+    ui->textEdit->append("ASHAB Telemetry. Build date: "
+                         + QString::fromLocal8Bit(__DATE__));
     ui->textEdit->append("\n");
 }
 
@@ -25,5 +26,6 @@ void ConsoleDialog::clear()
 void ConsoleDialog::append(QString str)
 {   
     ui->textEdit->append(str);
-    ui->textEdit->verticalScrollBar()->setValue(ui->textEdit->verticalScrollBar()->maximum());
+    ui->textEdit->verticalScrollBar()
+            ->setValue(ui->textEdit->verticalScrollBar()->maximum());
 }

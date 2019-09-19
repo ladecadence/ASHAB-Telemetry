@@ -143,7 +143,8 @@ void ChartsDialog::update_chart()
             QTime time = QTime::fromString(times->at(i), "hh:mm:ss");
             momentInTime.setDate(date);
             momentInTime.setTime(time);
-            lineSeries->append(momentInTime.toMSecsSinceEpoch(), data->at(i).toFloat());
+            lineSeries->append(momentInTime.toMSecsSinceEpoch(),
+                               static_cast<qreal>(data->at(i).toFloat()));
     }
 
     // now configure graph
@@ -183,8 +184,10 @@ void ChartsDialog::on_saveButton_clicked()
     QString path;
 
     // Take file path and name that will create
-    QString newPath = QFileDialog::getSaveFileName(this, trUtf8("Save SVG"),
-                                                   path, tr("SVG files (*.svg)"));
+    QString newPath = QFileDialog::getSaveFileName(this,
+                                                   trUtf8("Save SVG"),
+                                                   path,
+                                                   tr("SVG files (*.svg)"));
 
     if (newPath.isEmpty())
         return;
@@ -192,10 +195,17 @@ void ChartsDialog::on_saveButton_clicked()
     path = newPath;
 
     QSvgGenerator generator;        // Create a file generator object
-    generator.setFileName(path);    // We set the path to the file where to save vector graphics
-    generator.setSize(QSize(ui->chartView->scene()->width(), ui->chartView->scene()->height()));  // Set the dimensions of the working area of the document in millimeters
-    generator.setViewBox(QRect(0, 0, ui->chartView->scene()->width(), ui->chartView->scene()->height())); // Set the work area in the coordinates
-    generator.setTitle(trUtf8("SVG Example"));                          // The title document
+    generator.setFileName(path);    // We set the path to the file
+                                    // where to save vector graphics
+    // Set the dimensions of the working area of the document in millimeters
+    generator.setSize(
+                QSize(static_cast<int>(ui->chartView->scene()->width()),
+                      static_cast<int>(ui->chartView->scene()->height())));
+    // Set the work area in the coordinates
+    generator.setViewBox(
+                QRect(0, 0, static_cast<int>(ui->chartView->scene()->width()),
+                      static_cast<int>(ui->chartView->scene()->height())));
+    generator.setTitle(trUtf8("SVG Example"));  // The title document
     generator.setDescription(trUtf8("File created by SVG Example"));
 
     QPainter painter;

@@ -23,14 +23,16 @@ Config::Config(QWidget *parent) :
 
     if (config->contains("direwolf/port"))
     {
-        ui->direwolfPortEdit->setText(config->value("direwolf/port").toString());
+        ui->direwolfPortEdit->setText(config->value("direwolf/port")
+                                      .toString());
     } else {
         ui->direwolfPortEdit->setText(QString::number(8000));
     }
 
     if (config->contains("lora/port"))
     {
-        ui->serialPortCombo->setCurrentText(config->value("lora/port").toString());
+        ui->serialPortCombo->setCurrentText(config->value("lora/port")
+                                            .toString());
     }
 
     if (config->contains("lora/imgpath"))
@@ -52,12 +54,14 @@ Config::Config(QWidget *parent) :
 
     if (config->contains("tracker/password"))
     {
-        ui->serverPassEdit->setText(config->value("tracker/password").toString());
+        ui->serverPassEdit->setText(config->value("tracker/password")
+                                    .toString());
     }
 
     if (config->contains("tracker/database"))
     {
-        ui->serverDbEdit->setText(config->value("tracker/database").toString());
+        ui->serverDbEdit->setText(config->value("tracker/database")
+                                  .toString());
     }
 
     if (config->contains("log/filename"))

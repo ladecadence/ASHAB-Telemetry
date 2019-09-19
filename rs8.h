@@ -5,8 +5,8 @@
  * This version tweaked by Philip Heron <phil@sanslogic.co.uk>
 */
 
-#ifndef _RS8_H
-#define _RS8_H
+#ifndef RS8_H
+#define RS8_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,5 +19,5 @@ extern int decode_rs_8(uint8_t *data, int *eras_pos, int no_eras, int pad);
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif // RS8_H
 

@@ -26,8 +26,7 @@
 #define SEPARATOR "/"
 
 
-class Telemetry
-{
+class Telemetry {
 public:
     QString latitude;
     QString longitude;
@@ -44,7 +43,6 @@ public:
     QString sats;
     QString a_rate;
     QString msg;
-
 
     Telemetry();
     bool parseData(QString data);

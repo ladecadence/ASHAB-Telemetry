@@ -22,15 +22,14 @@ struct max_min
 typedef struct max_min max_min_t;
 
 namespace Ui {
-class MaxMinDialog;
+    class MaxMinDialog;
 }
 
-class MaxMinDialog : public QDialog
-{
+class MaxMinDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit MaxMinDialog(QWidget *parent = 0);
+    explicit MaxMinDialog(QWidget *parent = nullptr);
     ~MaxMinDialog();
     void initData(Telemetry* t);
     void updateData(Telemetry* t);

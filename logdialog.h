@@ -26,15 +26,14 @@
 #define LOG_ARATE 12
 
 namespace Ui {
-class LogDialog;
+    class LogDialog;
 }
 
-class LogDialog : public QDialog
-{
+class LogDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit LogDialog(QWidget *parent = 0);
+    explicit LogDialog(QWidget *parent = nullptr);
     ~LogDialog();
     void loadData();
     bool get_data(int index, QStringList* data);

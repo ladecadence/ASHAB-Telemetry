@@ -29,7 +29,8 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
     // columns
     ui->tableWidget->setColumnCount(6);
     QStringList headers;
-    headers << "Alt." << "Spd." << "Baro" << "T. Int." << "T. Ext" << "A. Rate";
+    headers << "Alt." << "Spd." << "Baro"
+            << "T. Int." << "T. Ext" << "A. Rate";
     ui->tableWidget->setHorizontalHeaderLabels(headers);
     // rows
     ui->tableWidget->setRowCount(2);
@@ -40,7 +41,8 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
     for (int i=0; i<2; i++)
         for (int j=0; j<6; j++)
         {
-            QTableWidgetItem *newItem = new QTableWidgetItem(QTableWidgetItem::Type);
+            QTableWidgetItem *newItem =
+                    new QTableWidgetItem(QTableWidgetItem::Type);
             if (i==0)
                 newItem->setBackgroundColor(QColor::fromRgb(255,100,100));
             else
@@ -67,7 +69,7 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
     // check config and set filename
     config = new QSettings("ASHAB", "Telemetry");
 
-    logFile = NULL;
+    logFile = nullptr;
 
     if (config->contains("log/filename")) {
         logFile = new QFile(config->value("log/filename").toString());
@@ -221,7 +223,6 @@ void MaxMinDialog::updateData(Telemetry *t)
         // temp ext
         if (t->temp_ext.toFloat(&ok) > this->max.temp_ext)
         {
-			printf("ext temp +\n");
             if (ok) {
                 this->max.temp_ext = t->temp_ext.toFloat();
                 ui->tableWidget->item(0, 4)->setText(t->temp_ext);
@@ -230,7 +231,6 @@ void MaxMinDialog::updateData(Telemetry *t)
 
         if (t->temp_ext.toFloat(&ok)<this->min.temp_ext)
         {
-			printf("ext temp -\n");
             if (ok) {
                 this->min.temp_ext = t->temp_ext.toFloat();
                 ui->tableWidget->item(1,4)->setText(t->temp_ext);

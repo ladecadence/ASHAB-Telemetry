@@ -88,7 +88,9 @@ void LogDialog::on_tableWidget_itemSelectionChanged()
         for (int j = 0; j < ui->tableWidget->model()->columnCount(); j++)
         {
             // add them to list
-            clipText.append(ui->tableWidget->model()->data(ui->tableWidget->model()->index(i, j)).toString());
+            clipText.append(ui->tableWidget->model()
+                            ->data(ui->tableWidget->model()
+                                   ->index(i, j)).toString());
             if (j < ui->tableWidget->model()->columnCount()-1)
                 clipText.append(QString::fromUtf8(";"));
         }

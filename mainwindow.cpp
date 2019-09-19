@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (config->contains("direwolf/port"))
     {
-        port = config->value("direwolf/port").toInt();
+        port = static_cast<quint16>(config->value("direwolf/port").toUInt());
     } else {
         port = 8000;
         config->setValue("direwolf/port", port);
@@ -46,15 +46,16 @@ MainWindow::MainWindow(QWidget *parent) :
             loraSerialPortValid = true;
             // flush data
             loraSerialPort->clear();
-            connect(loraSerialPort, SIGNAL(readyRead()), SLOT(readLoRaSerialData()));
+            connect(loraSerialPort, SIGNAL(readyRead()),
+                    SLOT(readLoRaSerialData()));
         }
     }
 
     if (config->contains("tracker/url"))
     {
-        url = config->value("tracker/url").toInt();
+        url = config->value("tracker/url").toString();
     } else {
-        url = "http://ashab.space/tracker/upload-couchdb.php";
+        url = "http://tracker.ashab.space/upload";
         config->setValue("tracker/url", url);
     }
 
@@ -91,7 +92,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // add keyboard shortcuts
     exitAction = new QAction(this);
     exitAction->setShortcut(Qt::Key_Q | Qt::CTRL);
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(on_actionSalir_triggered()));
+    connect(exitAction, SIGNAL(triggered()),
+            this, SLOT(on_actionSalir_triggered()));
     this->addAction(exitAction);
 
     // Telemetry
@@ -133,7 +135,7 @@ MainWindow::~MainWindow()
     qApp->exit();
 }
 
-void MainWindow::connectTcp(QString host, qint16 port)
+void MainWindow::connectTcp(QString host, quint16 port)
 {
     // create AWG "m" message to listen to all packets
     QByteArray m_message(36, 0);
@@ -192,21 +194,26 @@ bool MainWindow::readTelemetry(QString data, int source)
         }
 
         ui->labelAlt->setText("Altitud: " + telemetry->altitude + " m");
-        ui->labelHdg->setText("Heading: " + telemetry->heading + QString::fromUtf8(" º"));
+        ui->labelHdg->setText("Heading: " + telemetry->heading
+                              + QString::fromUtf8(" º"));
         ui->labelSpd->setText("Velocidad: " + telemetry->speed + " kn");
         ui->labelBaro->setText("Baro: " + telemetry->baro + " mb");
-        ui->labelBatt->setText(QString::fromUtf8("Batería: ") + telemetry->voltage + " V");
-        ui->labelTin->setText("Temp. Interna: " + telemetry->temp_int + QString::fromUtf8(" ºC"));
-        ui->labelTout->setText("Temp. Externa: " + telemetry->temp_ext + QString::fromUtf8(" ºC"));
-        ui->labelSats->setText(QString::fromUtf8("Satélites GPS: ") + telemetry->sats);
+        ui->labelBatt->setText(QString::fromUtf8("Batería: ")
+                               + telemetry->voltage + " V");
+        ui->labelTin->setText("Temp. Interna: " + telemetry->temp_int
+                              + QString::fromUtf8(" ºC"));
+        ui->labelTout->setText("Temp. Externa: " + telemetry->temp_ext
+                               + QString::fromUtf8(" ºC"));
+        ui->labelSats->setText(QString::fromUtf8("Satélites GPS: ")
+                               + telemetry->sats);
         ui->labelAsr->setText("Ratio Asc.: " + telemetry->a_rate + " m/s");
 
 
         // update max and min
         if (!maxMinDialog->isInit())
-		{
+        {
             maxMinDialog->initData(telemetry);
-		}
+        }
         maxMinDialog->updateData(telemetry);
 
         // let's log
@@ -252,8 +259,8 @@ void MainWindow::readLoRaSerialData()
     // packets start with 0xAA, 0x55, 0xAA, 0x55
     // and end with 0x33, 0xCC, 0x33, 0xCC
     // if we have data, store it up
-	if (loraSerialPort->bytesAvailable() > 0)
-	{
+    if (loraSerialPort->bytesAvailable() > 0)
+    {
         // read data
         serialBuffer->append(loraSerialPort->readAll());
 
@@ -284,38 +291,44 @@ void MainWindow::readLoRaSerialData()
             serialBuffer->at(1) == '#') {
         serialBuffer->clear();
         return;
-    } 
+    }
 
-	// telemetry packet
-	else if ((serialBuffer->at(0) =='$') &&
-         (serialBuffer->at(1) == '$') &&
-         (serialBuffer->at(serialBuffer->length()-1) == '\n')) {
+    // telemetry packet $$.....\n
+    else if ((serialBuffer->at(0) =='$') &&
+             (serialBuffer->at(1) == '$') &&
+             (serialBuffer->at(serialBuffer->length()-1) == '\n')) {
 
-            QByteArray telem_data = QByteArray::fromRawData(serialBuffer->constData(), serialBuffer->length());
-            // and delete that data from the buffer
-            serialBuffer->clear();
+        QByteArray telem_data =
+                QByteArray::fromRawData(serialBuffer->constData(),
+                                        serialBuffer->length());
+        // and delete that data from the buffer
+        serialBuffer->clear();
 
-            // ok, parse telemetry
-            consoleDialog->append("Telemetry Packet!");
-            consoleDialog->append(QString::fromLocal8Bit(telem_data.constData()));
+        // ok, parse telemetry
+        consoleDialog->append("Telemetry Packet!");
+        consoleDialog->append(QString::fromLocal8Bit(telem_data.constData()));
 
-            // parse telemetry
-            this->readTelemetry(telem_data.constData(), LoRa);
+        // parse telemetry
+        this->readTelemetry(telem_data.constData(), LoRa);
 
-            return;
-    } else if ((serialBuffer->at(0) == 0x66) && (serialBuffer->length() == 255)) {
+        return;
+    } else if ((serialBuffer->at(0) == 0x66)
+               && (serialBuffer->length() == 255)) {
         // ok, SSDV packet
-        int image_num = (int)serialBuffer->at(SSDV_HEADER_IMAGE);
-        int image_packet = (serialBuffer->at(SSDV_HEADER_PACKET_MSB) << 8) + serialBuffer->at(SSDV_HEADER_PACKET_LSB);
-        int is_last_packet = (serialBuffer->at(SSDV_HEADER_FLAGS) & 0b00000100) >> 2;
+        int image_num = static_cast<int>(serialBuffer->at(SSDV_HEADER_IMAGE));
+        int image_packet = (serialBuffer->at(SSDV_HEADER_PACKET_MSB) << 8)
+                + serialBuffer->at(SSDV_HEADER_PACKET_LSB);
+        int is_last_packet = (serialBuffer->at(SSDV_HEADER_FLAGS)
+                              & 0b00000100) >> 2;
 
         if (is_last_packet)
             qDebug() << "Last SSDV packet";
 
         QString status = QString("");
-        status.append("Recibido paquete ").append(QString::number(image_packet)).
-                append(" de imagen ").
-                append(QString::number(image_num));
+        status.append("Recibido paquete ")
+                .append(QString::number(image_packet))
+                .append(" de imagen ")
+                .append(QString::number(image_num));
 
         // update status msg
         ssdvDialog->updateStatus(status);
@@ -394,7 +407,7 @@ void MainWindow::updatePacketTime()
     QDateTime *now = new QDateTime(QDateTime::currentDateTimeUtc());
 
     // AWG
-    int awgSeconds = lastAwgPacket->secsTo(*now);
+    int awgSeconds = static_cast<int>(lastAwgPacket->secsTo(*now));
     QString message = QString::fromUtf8("Último paquete AWG hace: ");
     if (awgSeconds > 59) {
         int minutes = awgSeconds / 60;
@@ -413,7 +426,7 @@ void MainWindow::updatePacketTime()
     // LoRa
     if (loraSerialPortValid) {
         message.append(" / Último paquete LoRa hace: ");
-        int loraSeconds = lastLoRaPacket->secsTo(*now);
+        int loraSeconds = static_cast<int>(lastLoRaPacket->secsTo(*now));
 
         if (loraSeconds > 59) {
             int loraMinutes = loraSeconds / 60;
@@ -468,7 +481,7 @@ void MainWindow::on_actionConfigurar_triggered()
 
         if (config->contains("direwolf/port"))
         {
-            port = config->value("direwolf/port").toInt();
+            port = static_cast<quint16>(config->value("direwolf/port").toInt());
         } else {
             port = 8000;
             config->setValue("direwolf/port", port);
@@ -485,9 +498,10 @@ void MainWindow::on_actionConfigurar_triggered()
 void MainWindow::uploadTelemetry()
 {
     // check for auth data
-    if (config->contains("tracker/user") && config->contains("tracker/password") &&
-            config->contains("tracker/database"))
-    {
+    if (config->contains("tracker/user")
+            && config->contains("tracker/password")
+            && config->contains("tracker/database")) {
+
         networkManager = new QNetworkAccessManager(this);
 
         // Setup the webservice url
@@ -496,11 +510,12 @@ void MainWindow::uploadTelemetry()
         // add the data
         postData.addQueryItem("telemetry", telemetry->toString());
         postData.addQueryItem("image", "");
-        postData.addQueryItem("database", config->value("tracker/database").toString());
-        //fprintf(stderr, "%s\n", telemetry->toString().toLocal8Bit().constData());
+        postData.addQueryItem("database",
+                              config->value("tracker/database").toString());
 
         // Auth
-        QString concatenated = config->value("tracker/user").toString() + ":" + config->value("tracker/password").toString();
+        QString concatenated = config->value("tracker/user").toString()
+                + ":" + config->value("tracker/password").toString();
         QByteArray data = concatenated.toLocal8Bit().toBase64();
         QString headerData = "Basic " + data;
 
@@ -509,8 +524,10 @@ void MainWindow::uploadTelemetry()
 
         request.setHeader(QNetworkRequest::ContentTypeHeader,
                           "application/x-www-form-urlencoded");
-        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
-        networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+        connect(networkManager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(onPostAnswer(QNetworkReply*)));
+        networkManager->post(request,
+                             postData.toString(QUrl::FullyEncoded).toUtf8());
 
         // work done, clean
 
@@ -552,7 +569,8 @@ void MainWindow::on_labelLat_customContextMenuRequested(const QPoint &pos)
 
 void MainWindow::copyGoogleMaps()
 {
-    QString url =  QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
+    QString url =
+            QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
             telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
 
     // copy to clipboard
@@ -570,8 +588,9 @@ void MainWindow::copyOpenStreetMap()
         lat.prepend(("-"));
     if (lon.contains("W"))
         lon.prepend("-");
-    QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=") + lat +
-            QString::fromUtf8("&mlon=") + lon + QString::fromUtf8("&zoom=14");
+    QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=")
+            + lat + QString::fromUtf8("&mlon=")
+            + lon + QString::fromUtf8("&zoom=14");
 
 
     // copy to clipboard
@@ -581,7 +600,8 @@ void MainWindow::copyOpenStreetMap()
 
 void MainWindow::openGoogleMaps()
 {
-    QString url =  QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
+    QString url =
+            QString::fromUtf8("http://maps.google.com/maps?z=14&t=m&q=loc:") +
             telemetry->latitude + QString::fromUtf8("+") + telemetry->longitude;
 
     // open
@@ -598,8 +618,9 @@ void MainWindow::openOpenStreetMap()
         lat.prepend(("-"));
     if (lon.contains("W"))
         lon.prepend("-");
-    QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=") + lat +
-            QString::fromUtf8("&mlon=") + lon + QString::fromUtf8("&zoom=14");
+    QString url = QString::fromUtf8("http://www.openstreetmap.org/?mlat=")
+            + lat + QString::fromUtf8("&mlon=")
+            + lon + QString::fromUtf8("&zoom=14");
 
     // open
     QDesktopServices::openUrl(QUrl(url));
@@ -618,34 +639,34 @@ void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
 
 uint32_t MainWindow::encodeCallsign(char* callsign) 
 {
-	uint32_t x;
-	char *c;
-	
-	/* Point c at the end of the callsign, maximum of 6 characters */
-	for(x = 0, c = callsign; x < SSDV_MAX_CALLSIGN && *c; x++, c++);
-	
-	/* Encode it backwards */
-	x = 0;
-	for(c--; c >= callsign; c--)
-	{
-		x *= 40;
-		if(*c >= 'A' && *c <= 'Z') x += *c - 'A' + 14;
-		else if(*c >= 'a' && *c <= 'z') x += *c - 'a' + 14;
-		else if(*c >= '0' && *c <= '9') x += *c - '0' + 1;
-	}
-	
-	return(x);
+    uint32_t x;
+    char *c;
+
+    /* Point c at the end of the callsign, maximum of 6 characters */
+    for(x = 0, c = callsign; x < SSDV_MAX_CALLSIGN && *c; x++, c++);
+
+    /* Encode it backwards */
+    x = 0;
+    for(c--; c >= callsign; c--)
+    {
+        x *= 40;
+        if(*c >= 'A' && *c <= 'Z') x += *c - 'A' + 14;
+        else if(*c >= 'a' && *c <= 'z') x += *c - 'a' + 14;
+        else if(*c >= '0' && *c <= '9') x += *c - '0' + 1;
+    }
+
+    return(x);
 }
 
 void MainWindow::on_labelLat_linkActivated(const QString &link)
 {
-	qDebug() << link;
+    qDebug() << link;
     openOpenStreetMap();
 }
 
 void MainWindow::on_labelLon_linkActivated(const QString &link)
 {
-	qDebug() << link;
+    qDebug() << link;
     openOpenStreetMap();
 }
 

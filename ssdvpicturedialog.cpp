@@ -28,9 +28,6 @@ void SSDVPictureDialog::loadPicture(QString picturePath)
     QPixmap pixmap(picturePath);
     ui->graphicsView->setScene(scn);
     scn->addPixmap(pixmap);
-    //ui->graphicsView->fitInView(scn->itemsBoundingRect(),Qt::KeepAspectRatio);
-    //ui->graphicsView->scale(ui->graphicsView->width()/scn->width(), ui->graphicsView->height()/scn->height());
-
 }
 
 void SSDVPictureDialog::on_uploadButton_clicked()
@@ -39,8 +36,9 @@ void SSDVPictureDialog::on_uploadButton_clicked()
     config = new QSettings("ASHAB", "Telemetry");
 
     // check for auth data
-    if (config->contains("tracker/user") && config->contains("tracker/password") &&
-            config->contains("tracker/url"))
+    if (config->contains("tracker/user")
+            && config->contains("tracker/password")
+            && config->contains("tracker/url"))
     {
         // disable upload button
         ui->uploadButton->setEnabled(false);
@@ -70,7 +68,8 @@ void SSDVPictureDialog::on_uploadButton_clicked()
 
 
         // Auth
-        QString concatenated = config->value("tracker/user").toString() + ":" + config->value("tracker/password").toString();
+        QString concatenated = config->value("tracker/user").toString()
+                + ":" + config->value("tracker/password").toString();
         QByteArray data = concatenated.toLocal8Bit().toBase64();
         QString headerData = "Basic " + data;
 
@@ -88,10 +87,10 @@ void SSDVPictureDialog::on_uploadButton_clicked()
         //                    "application/x-www-form-urlencoded");
 
 
-		connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostAnswer(QNetworkReply*)));
+        connect(networkManager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(onPostAnswer(QNetworkReply*)));
 
 		// make the post
-        //networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 		qDebug() << "REQUEST---------------------";
 		qDebug() << request.url().toString();
   		const QList<QByteArray>& rawHeaderList(request.rawHeaderList());
@@ -114,7 +113,8 @@ void SSDVPictureDialog::onPostAnswer(QNetworkReply* reply)
 
     QString replyText = QString::fromUtf8(reply->readAll().constData());
     fprintf(stderr, "\n----->>>> %s", replyText.toLocal8Bit().constData());
-    if (replyText.contains("You can pass") && replyText.contains("has been uploaded")) {
+    if (replyText.contains("You can pass")
+            && replyText.contains("has been uploaded")) {
         fprintf(stderr, "+++ Image Uploaded!");
         ui->labelUpload->setText("Uploaded.");
     }

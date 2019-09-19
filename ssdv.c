@@ -36,22 +36,22 @@ enum {
 } jpeg_marker_t;
 
 /* APP0 header data */
-static const uint8_t const app0[14] = {
+static const uint8_t app0[14] = {
 0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x01,0x00,0x48,0x00,0x48,0x00,0x00,
 };
 
 /* SOS header data */
-static const uint8_t const sos[10] = {
+static const uint8_t sos[10] = {
 0x03,0x01,0x00,0x02,0x11,0x03,0x11,0x00,0x3F,0x00,
 };
 
 /* Quantisation table scaling factors for each quality level 0-7 */
-static const uint16_t const dqt_scales[8] = {
+static const uint16_t dqt_scales[8] = {
 5000, 357, 172, 116, 100, 58, 28, 0
 };
 
 /* Quantisation tables */
-static const uint8_t const std_dqt0[65] = {
+static const uint8_t std_dqt0[65] = {
 0x00,0x10,0x0C,0x0C,0x0E,0x0C,0x0A,0x10,0x0E,0x0E,0x0E,0x12,0x12,0x10,0x14,0x18,
 0x28,0x1A,0x18,0x16,0x16,0x18,0x32,0x24,0x26,0x1E,0x28,0x3A,0x34,0x3E,0x3C,0x3A,
 0x34,0x38,0x38,0x40,0x48,0x5C,0x4E,0x40,0x44,0x58,0x46,0x38,0x38,0x50,0x6E,0x52,
@@ -59,7 +59,7 @@ static const uint8_t const std_dqt0[65] = {
 0x64,
 };
 
-static const uint8_t const std_dqt1[65] = {
+static const uint8_t std_dqt1[65] = {
 0x01,0x12,0x12,0x12,0x16,0x16,0x16,0x30,0x1A,0x1A,0x30,0x64,0x42,0x38,0x42,0x64,
 0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,
 0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,0x64,
@@ -140,7 +140,8 @@ static char *strbits(uint32_t value, uint8_t bits)
 }
 */
 
-static void load_standard_dqt(uint8_t *dst, const uint8_t *table, uint8_t quality)
+static void load_standard_dqt(uint8_t *dst, const uint8_t *table,
+                              uint8_t quality)
 {
 	int i;
 	uint16_t scale_factor;
@@ -167,7 +168,8 @@ static void load_standard_dqt(uint8_t *dst, const uint8_t *table, uint8_t qualit
 	}
 }
 
-static void *sload_standard_dqt(ssdv_t *s, const uint8_t *table, uint8_t quality)
+static void *sload_standard_dqt(ssdv_t *s, const uint8_t *table,
+                                uint8_t quality)
 {
 	uint8_t *r;
 	
@@ -181,7 +183,8 @@ static void *sload_standard_dqt(ssdv_t *s, const uint8_t *table, uint8_t quality
 	return(r);
 }
 
-static void *dload_standard_dqt(ssdv_t *s, const uint8_t *table, uint8_t quality)
+static void *dload_standard_dqt(ssdv_t *s, const uint8_t *table,
+                                uint8_t quality)
 {
 	uint8_t *r;
 	
@@ -311,7 +314,8 @@ static inline char jpeg_dht_lookup(ssdv_t *s, uint8_t *symbol, uint8_t *width)
 	return(SSDV_ERROR);
 }
 
-static inline char jpeg_dht_lookup_symbol(ssdv_t *s, uint8_t symbol, uint16_t *bits, uint8_t *width)
+static inline char jpeg_dht_lookup_symbol(ssdv_t *s, uint8_t symbol,
+                                          uint16_t *bits, uint8_t *width)
 {
 	uint16_t code = 0;
 	uint8_t cw, n;
@@ -408,9 +412,11 @@ static char ssdv_out_jpeg_int(ssdv_t *s, uint8_t rle, int value)
 	int r;
 	
 	jpeg_encode_int(value, &intbits, &intlen);
-	r = jpeg_dht_lookup_symbol(s, (rle << 4) | (intlen & 0x0F), &huffbits, &hufflen);
+    r = jpeg_dht_lookup_symbol(s, (rle << 4) | (intlen & 0x0F),
+                               &huffbits, &hufflen);
 	
-    if(r != SSDV_OK) fprintf(stderr, "jpeg_dht_lookup_symbol: %i (%i:%i)\n", r, value, rle);
+    if(r != SSDV_OK)
+        fprintf(stderr, "jpeg_dht_lookup_symbol: %i (%i:%i)\n", r, value, rle);
 	
 	ssdv_outbits(s, huffbits, hufflen);
 	if(intlen) ssdv_outbits(s, intbits, intlen);
@@ -434,9 +440,11 @@ static char ssdv_process(ssdv_t *s)
 			if(symbol == 0x00)
 			{
 				/* No change in DC from last block */
-				if(s->reset_mcu == s->mcu_id && (s->mcupart == 0 || s->mcupart >= s->ycparts))
+                if(s->reset_mcu == s->mcu_id
+                        && (s->mcupart == 0 || s->mcupart >= s->ycparts))
 				{
-					if(s->mode == S_ENCODING) ssdv_out_jpeg_int(s, 0, s->adc[s->component]);
+                    if(s->mode == S_ENCODING)
+                        ssdv_out_jpeg_int(s, 0, s->adc[s->component]);
 					else
 					{
 						ssdv_out_jpeg_int(s, 0, 0 - s->dc[s->component]);
@@ -496,7 +504,8 @@ static char ssdv_process(ssdv_t *s)
 		
 		if(s->acpart == 0) /* DC */
 		{
-			if(s->reset_mcu == s->mcu_id && (s->mcupart == 0 || s->mcupart >= s->ycparts))
+            if(s->reset_mcu == s->mcu_id
+                    && (s->mcupart == 0 || s->mcupart >= s->ycparts))
 			{
 				if(s->mode == S_ENCODING)
 				{
@@ -623,12 +632,14 @@ static void ssdv_set_packet_conf(ssdv_t *s)
 	switch(s->type)
 	{
 	case SSDV_TYPE_NORMAL:
-		s->pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER - SSDV_PKT_SIZE_CRC - SSDV_PKT_SIZE_RSCODES;
+        s->pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER
+                - SSDV_PKT_SIZE_CRC - SSDV_PKT_SIZE_RSCODES;
 		s->pkt_size_crcdata = SSDV_PKT_SIZE_HEADER + s->pkt_size_payload - 1;
 		break;
 	
 	case SSDV_TYPE_NOFEC:
-		s->pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER - SSDV_PKT_SIZE_CRC;
+        s->pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER
+                - SSDV_PKT_SIZE_CRC;
 		s->pkt_size_crcdata = SSDV_PKT_SIZE_HEADER + s->pkt_size_payload - 1;
 		break;
 	}
@@ -732,14 +743,16 @@ static char ssdv_have_marker_data(ssdv_t *s)
 		/* Maximum image is 4080x4080 */
 		if(s->width > 4080 || s->height > 4080)
 		{
-            fprintf(stderr, "Error: The image is too big. Maximum resolution is 4080x4080\n");
+            fprintf(stderr,
+                    "Error: The image is too big. Maximum resolution is 4080x4080\n");
 			return(SSDV_ERROR);
 		}
 		
 		/* The image dimensions must be a multiple of 16 */
 		if((s->width & 0x0F) || (s->height & 0x0F))
 		{
-            fprintf(stderr, "Error: The image dimensions must be a multiple of 16\n");
+            fprintf(stderr,
+                    "Error: The image dimensions must be a multiple of 16\n");
 			return(SSDV_ERROR);
 		}
 		
@@ -750,11 +763,14 @@ static char ssdv_have_marker_data(ssdv_t *s)
 			uint8_t *dq = &d[i * 3 + 6];
 			if(dq[0] != i + 1)
 			{
-                fprintf(stderr, "Error: Components are not in order in the SOF0 header\n");
+                fprintf(stderr,
+                        "Error: Components are not in order in the SOF0 header\n");
 				return(SSDV_ERROR);
 			}
 			
-            fprintf(stderr, "DQT table for component %i: %02X, Sampling factor: %ix%i\n", dq[0], dq[2], dq[1] & 0x0F, dq[1] >> 4);
+            fprintf(stderr,
+                    "DQT table for component %i: %02X, Sampling factor: %ix%i\n",
+                    dq[0], dq[2], dq[1] & 0x0F, dq[1] >> 4);
 			
 			/* The first (Y) component must have a factor of 2x2,2x1,1x2 or 1x1 */
 			if(dq[0] == 1)
@@ -766,13 +782,16 @@ static char ssdv_have_marker_data(ssdv_t *s)
 				case 0x21: s->mcu_mode = 2; s->ycparts = 2; break;
 				case 0x11: s->mcu_mode = 3; s->ycparts = 1; break;
 				default:
-                    fprintf(stderr, "Error: Component 1 sampling factor is not supported\n");
+                    fprintf(stderr,
+                            "Error: Component 1 sampling factor is not supported\n");
 					return(SSDV_ERROR);
 				}
 			}
 			else if(dq[0] != 1 && dq[1] != 0x11)
 			{
-                fprintf(stderr, "Error: Component %i sampling factor must be 1x1\n", dq[0]);
+                fprintf(stderr,
+                        "Error: Component %i sampling factor must be 1x1\n",
+                        dq[0]);
 				return(SSDV_ERROR);
 			}
 		}
@@ -813,7 +832,8 @@ static char ssdv_have_marker_data(ssdv_t *s)
 			uint8_t *dh = &d[i * 2 + 1];
 			if(dh[0] != i + 1)
 			{
-                fprintf(stderr, "Error: Components are not in order in the SOF0 header\n");
+                fprintf(stderr,
+                        "Error: Components are not in order in the SOF0 header\n");
 				return(SSDV_ERROR);
 			}
 			
@@ -826,14 +846,16 @@ static char ssdv_have_marker_data(ssdv_t *s)
 		/* Verify all of the DQT and DHT tables where loaded */
 		if(!s->sdqt[0] || !s->sdqt[1])
 		{
-            fprintf(stderr, "Error: The image is missing one or more DQT tables\n");
+            fprintf(stderr,
+                    "Error: The image is missing one or more DQT tables\n");
 			return(SSDV_ERROR);
 		}
 		
 		if(!s->sdht[0][0] || !s->sdht[0][1] ||
 		   !s->sdht[1][0] || !s->sdht[1][1])
 		{
-            fprintf(stderr, "Error: The image is missing one or more DHT tables\n");
+            fprintf(stderr,
+                    "Error: The image is missing one or more DHT tables\n");
 			return(SSDV_ERROR);
 		}
 		
@@ -891,7 +913,8 @@ static char ssdv_have_marker_data(ssdv_t *s)
 	return(SSDV_OK);
 }
 
-char ssdv_enc_init(ssdv_t *s, uint8_t type, char *callsign, uint8_t image_id, int8_t quality)
+char ssdv_enc_init(ssdv_t *s, uint8_t type, char *callsign,
+                   uint8_t image_id, int8_t quality)
 {
 	/* Limit the quality level */
 	if(quality < 0) quality = 0;
@@ -1094,7 +1117,8 @@ char ssdv_enc_feed(ssdv_t *s, uint8_t *buffer, size_t length)
 
 /*****************************************************************************/
 
-static void ssdv_write_marker(ssdv_t *s, uint16_t id, uint16_t length, const uint8_t *data)
+static void ssdv_write_marker(ssdv_t *s, uint16_t id, uint16_t length,
+                              const uint8_t *data)
 {
 	ssdv_outbits(s, id, 16);
 	if(length > 0)
@@ -1239,7 +1263,8 @@ char ssdv_dec_feed(ssdv_t *s, uint8_t *packet)
 		
 		/* Read the fixed headers from the packet */
 		s->type      = packet[1] - 0x66;
-		s->callsign  = (packet[2] << 24) | (packet[3] << 16) | (packet[4] << 8) | packet[5];
+        s->callsign  = (packet[2] << 24) | (packet[3] << 16)
+                | (packet[4] << 8) | packet[5];
 		s->image_id  = packet[6];
 		s->width     = packet[9] << 4;
 		s->height    = packet[10] << 4;
@@ -1265,7 +1290,8 @@ char ssdv_dec_feed(ssdv_t *s, uint8_t *packet)
 		}
 		
 		/* Display information about the image */
-        fprintf(stderr, "Callsign: %s\n", decode_callsign(callsign, s->callsign));
+        fprintf(stderr, "Callsign: %s\n", decode_callsign(callsign,
+                                                          s->callsign));
         fprintf(stderr, "Image ID: %02X\n", s->image_id);
         fprintf(stderr, "Resolution: %ix%i\n", s->width, s->height);
         fprintf(stderr, "MCU blocks: %i\n", s->mcu_count);
@@ -1281,7 +1307,8 @@ char ssdv_dec_feed(ssdv_t *s, uint8_t *packet)
 	if(packet_id != s->packet_id)
 	{
 		/* One or more packets have been lost! */
-        fprintf(stderr, "Gap detected between packets %i and %i\n", s->packet_id - 1, packet_id);
+        fprintf(stderr, "Gap detected between packets %i and %i\n",
+                s->packet_id - 1, packet_id);
 		
 		/* If this packet has no new MCU, ignore */
 		if(s->packet_mcu_offset == 0xFF) return(SSDV_FEED_ME);
@@ -1375,7 +1402,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 	if(pkt[1] == 0x66 + SSDV_TYPE_NOFEC)
 	{
 		/* Test for a valid NOFEC packet */
-		pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER - SSDV_PKT_SIZE_CRC;
+        pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER
+                - SSDV_PKT_SIZE_CRC;
 		pkt_size_crcdata = SSDV_PKT_SIZE_HEADER + pkt_size_payload - 1;
 		
 		/* No FEC scan */
@@ -1385,7 +1413,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 		x = crc32(&pkt[1], pkt_size_crcdata);
 		
 		i = 1 + pkt_size_crcdata;
-        if(x == (uint32_t) (pkt[i + 3] | (pkt[i + 2] << 8) | (pkt[i + 1] << 16) | (pkt[i] << 24)))
+        if(x == (uint32_t) (pkt[i + 3] | (pkt[i + 2] << 8)
+                            | (pkt[i + 1] << 16) | (pkt[i] << 24)))
 		{
 			/* Valid, set the type and continue */
 			type = SSDV_TYPE_NOFEC;
@@ -1394,7 +1423,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 	else if(pkt[1] == 0x66 + SSDV_TYPE_NORMAL)
 	{
 		/* Test for a valid NORMAL packet */
-		pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER - SSDV_PKT_SIZE_CRC - SSDV_PKT_SIZE_RSCODES;
+        pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER
+                - SSDV_PKT_SIZE_CRC - SSDV_PKT_SIZE_RSCODES;
 		pkt_size_crcdata = SSDV_PKT_SIZE_HEADER + pkt_size_payload - 1;
 		
 		/* No FEC scan */
@@ -1404,7 +1434,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 		x = crc32(&pkt[1], pkt_size_crcdata);
 		
 		i = 1 + pkt_size_crcdata;
-        if(x == (uint32_t) (pkt[i + 3] | (pkt[i + 2] << 8) | (pkt[i + 1] << 16) | (pkt[i] << 24)))
+        if(x == (uint32_t) (pkt[i + 3] | (pkt[i + 2] << 8)
+                            | (pkt[i + 1] << 16) | (pkt[i] << 24)))
 		{
 			/* Valid, set the type and continue */
 			type = SSDV_TYPE_NORMAL;
@@ -1414,7 +1445,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 	if(type == SSDV_TYPE_INVALID)
 	{
 		/* Test for a valid NORMAL packet with correctable errors */
-		pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER - SSDV_PKT_SIZE_CRC - SSDV_PKT_SIZE_RSCODES;
+        pkt_size_payload = SSDV_PKT_SIZE - SSDV_PKT_SIZE_HEADER
+                - SSDV_PKT_SIZE_CRC - SSDV_PKT_SIZE_RSCODES;
 		pkt_size_crcdata = SSDV_PKT_SIZE_HEADER + pkt_size_payload - 1;
 		
 		/* Run the reed-solomon decoder */
@@ -1428,7 +1460,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 		x = crc32(&pkt[1], pkt_size_crcdata);
 		
 		i = 1 + pkt_size_crcdata;
-        if(x == (uint32_t) (pkt[i + 3] | (pkt[i + 2] << 8) | (pkt[i + 1] << 16) | (pkt[i] << 24)))
+        if(x == (uint32_t) (pkt[i + 3] | (pkt[i + 2] << 8)
+                            | (pkt[i + 1] << 16) | (pkt[i] << 24)))
 		{
 			/* Valid, set the type and continue */
 			type = SSDV_TYPE_NORMAL;
@@ -1461,7 +1494,8 @@ char ssdv_dec_is_packet(uint8_t *packet, int *errors)
 void ssdv_dec_header(ssdv_packet_info_t *info, uint8_t *packet)
 {
 	info->type       = packet[1] - 0x66;
-	info->callsign   = (packet[2] << 24) | (packet[3] << 16) | (packet[4] << 8) | packet[5];
+    info->callsign   = (packet[2] << 24) | (packet[3] << 16)
+            | (packet[4] << 8) | packet[5];
 	decode_callsign(info->callsign_s, info->callsign);
 	info->image_id   = packet[6];
 	info->packet_id  = (packet[7] << 8) | packet[8];

@@ -64,7 +64,8 @@ void SSDVDialog::decodeSSDV(QString path)
     //callsign[0] = '\0';
 
     // decoding
-    ui->ssdvStatusLabel->setText(QString("Decodificando ").append(QFileInfo(path).fileName()));
+    ui->ssdvStatusLabel->setText(QString("Decodificando ")
+                                 .append(QFileInfo(path).fileName()));
 
     // open files
     fin = fopen(path.toUtf8().data(), "rb");
@@ -116,7 +117,9 @@ void SSDVDialog::decodeSSDV(QString path)
     fclose(fout);
     free(jpeg);
 
-    ui->ssdvStatusLabel->setText(QString("Decodificados ").append(QString::number(i)).append(" paquetes de ").
+    ui->ssdvStatusLabel->setText(QString("Decodificados ")
+                                 .append(QString::number(i))
+                                 .append(" paquetes de ").
                                  append(QFileInfo(path).fileName()));
 
     updateImage(path);

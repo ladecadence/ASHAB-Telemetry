@@ -29,17 +29,16 @@ enum Source {
 };
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void connectTcp(QString host, qint16 port);
+    void connectTcp(QString host, quint16 port);
     About *aboutDialog;
     Config *configDialog;
     LogDialog *logDialog;
@@ -47,7 +46,6 @@ public:
     SSDVDialog *ssdvDialog;
     ConsoleDialog *consoleDialog;
     ChartsDialog *chartsDialog;
-
 
 private:
     Ui::MainWindow *ui;

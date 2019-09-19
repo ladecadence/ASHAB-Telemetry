@@ -8,15 +8,14 @@
 #include "telemetry.h"
 
 namespace Ui {
-class ConsoleDialog;
+    class ConsoleDialog;
 }
 
-class ConsoleDialog : public QDialog
-{
+class ConsoleDialog : public QDialog {
     Q_OBJECT 
 
 public:
-    explicit ConsoleDialog(QWidget *parent = 0);
+    explicit ConsoleDialog(QWidget *parent = nullptr);
     ~ConsoleDialog();
     void append(QString string);
     void clear();

@@ -120,7 +120,8 @@ int decode_rs_8(uint8_t *data, int *eras_pos, int no_eras, int pad)
 		for(i = 0; i < NROOTS; i++)
 		{
 			if(s[i] == 0) s[i] = data[j];
-			else s[i] = data[j] ^ ALPHA_TO[MODNN(INDEX_OF[s[i]] + (FCR + i) * PRIM)];
+            else s[i] = data[j] ^ ALPHA_TO[MODNN(INDEX_OF[s[i]]
+                    + (FCR + i) * PRIM)];
 		}
 	}
 	
@@ -207,7 +208,8 @@ int decode_rs_8(uint8_t *data, int *eras_pos, int no_eras, int pad)
 				 * lambda(x)
 				 */
 				for(i = 0; i <= NROOTS; i++)
-					b[i] = (lambda[i] == 0) ? A0 : MODNN(INDEX_OF[lambda[i]] - discr_r + NN);
+                    b[i] = (lambda[i] == 0) ? A0 : MODNN(INDEX_OF[lambda[i]]
+                                              - discr_r + NN);
 			}
 			else
 			{
@@ -294,16 +296,20 @@ int decode_rs_8(uint8_t *data, int *eras_pos, int no_eras, int pad)
 		num2 = ALPHA_TO[MODNN(root[j] * (FCR - 1) + NN)];
 		den = 0;
 		
-		/* lambda[i+1] for i even is the formal derivative lambda_pr of lambda[i] */
+        /* lambda[i+1] for i even is the formal
+         * derivative lambda_pr of lambda[i] */
 		for(i = MIN(deg_lambda, NROOTS - 1) & ~1; i >= 0; i -= 2)
 		{
-			if(lambda[i + 1] != A0) den ^= ALPHA_TO[MODNN(lambda[i + 1] + i * root[j])];
+            if(lambda[i + 1] != A0) den ^= ALPHA_TO[MODNN(lambda[i + 1]
+                    + i * root[j])];
 		}
 		
 		/* Apply error to data */
 		if(num1 != 0 && loc[j] >= pad)
 		{
-			data[loc[j] - pad] ^= ALPHA_TO[MODNN(INDEX_OF[num1] + INDEX_OF[num2] + NN - INDEX_OF[den])];
+            data[loc[j] - pad] ^= ALPHA_TO[MODNN(INDEX_OF[num1]
+                                                 + INDEX_OF[num2]
+                                                 + NN - INDEX_OF[den])];
 		}
 	}
 	
