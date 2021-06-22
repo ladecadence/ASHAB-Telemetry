@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // start app
-    // packet engine
+    // packet engines
     lastAwgPacket = new QDateTime(QDateTime::currentDateTimeUtc());
     lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
     timer = new QTimer();
@@ -135,6 +135,7 @@ MainWindow::~MainWindow()
     qApp->exit();
 }
 
+// Creates TCP socket to receive AWG messages
 void MainWindow::connectTcp(QString host, quint16 port)
 {
     // create AWG "m" message to listen to all packets
@@ -152,6 +153,7 @@ void MainWindow::connectTcp(QString host, quint16 port)
 
 }
 
+// read AWG packets and process telemetry from them
 void MainWindow::readAwgData()
 {
     // check for valid data
@@ -166,6 +168,8 @@ void MainWindow::readAwgData()
     this->readTelemetry(QString::fromLocal8Bit(inData.constData()), Awg);
 }
 
+// processes telemetry data from AWG or LoRa packets
+// updates UI if data is valid
 bool MainWindow::readTelemetry(QString data, int source)
 {
     // parse data
@@ -186,6 +190,8 @@ bool MainWindow::readTelemetry(QString data, int source)
 
             ui->labelLat->setText(latitude);
             ui->labelLon->setText(longitude);
+            //ui->labelHdg
+
         }
         else
         {
@@ -253,11 +259,14 @@ bool MainWindow::readTelemetry(QString data, int source)
 
 }
 
+// reads LoRa packets from serial port
+// packets can be debug (##), telemetry ($$...\n) or SSDV packets
 void MainWindow::readLoRaSerialData()
 {
     // try to receive a packet
     // packets start with 0xAA, 0x55, 0xAA, 0x55
     // and end with 0x33, 0xCC, 0x33, 0xCC
+
     // if we have data, store it up
     if (loraSerialPort->bytesAvailable() > 0)
     {
@@ -284,7 +293,7 @@ void MainWindow::readLoRaSerialData()
     serialBuffer->chop(4);
 
     // check what we have
-    // qDebug() << serialBuffer->data();
+    qDebug() << "DATA: " << serialBuffer->data();
 
     // debug packet
     if (serialBuffer->at(0) == '#' &&
@@ -298,18 +307,18 @@ void MainWindow::readLoRaSerialData()
              (serialBuffer->at(1) == '$') &&
              (serialBuffer->at(serialBuffer->length()-1) == '\n')) {
 
-        QByteArray telem_data =
-                QByteArray::fromRawData(serialBuffer->constData(),
-                                        serialBuffer->length());
-        // and delete that data from the buffer
-        serialBuffer->clear();
-
-        // ok, parse telemetry
+        //QByteArray telem_data =
+        //        QByteArray::fromRawData(serialBuffer->constData(),
+        //                                serialBuffer->length());
+                // ok, parse telemetry
         consoleDialog->append("Telemetry Packet!");
-        consoleDialog->append(QString::fromLocal8Bit(telem_data.constData()));
+        consoleDialog->append(QString::fromLocal8Bit(serialBuffer->data()));
 
         // parse telemetry
-        this->readTelemetry(telem_data.constData(), LoRa);
+        this->readTelemetry(serialBuffer->data(), LoRa);
+
+	// and delete that data from the buffer
+        serialBuffer->clear();
 
         return;
     } else if ((serialBuffer->at(0) == 0x66)
@@ -402,6 +411,7 @@ void MainWindow::readLoRaSerialData()
 
 }
 
+// update last received time at statusbar
 void MainWindow::updatePacketTime()
 {
     QDateTime *now = new QDateTime(QDateTime::currentDateTimeUtc());
@@ -450,16 +460,20 @@ void MainWindow::updatePacketTime()
 
 }
 
+// menu actions
+// about
 void MainWindow::on_actionAcerca_de_triggered()
 {
     aboutDialog->exec();
 }
 
+// exit
 void MainWindow::on_actionSalir_triggered()
 {
     qApp->exit();
 }
 
+// configure
 void MainWindow::on_actionConfigurar_triggered()
 {
     // show config dialog
@@ -495,6 +509,7 @@ void MainWindow::on_actionConfigurar_triggered()
 
 }
 
+// uploads telemetry to tracker server
 void MainWindow::uploadTelemetry()
 {
     // check for auth data
@@ -529,13 +544,13 @@ void MainWindow::uploadTelemetry()
         networkManager->post(request,
                              postData.toString(QUrl::FullyEncoded).toUtf8());
 
-        // work done, clean
 
     }
 
 
 }
 
+// manage upload telemetry server reply
 void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
     QString replyText = QString::fromUtf8(reply->readAll().constData());
@@ -545,10 +560,12 @@ void MainWindow::onPostAnswer(QNetworkReply* reply)
         consoleDialog->append("Telemetry uploaded to the server!\n");
     }
 
+    // work done, clean
     reply->deleteLater();
     networkManager->deleteLater();
 }
 
+// UI and menu actions
 void MainWindow::on_actionLog_triggered()
 {
     logDialog->loadData();
@@ -637,6 +654,8 @@ void MainWindow::on_labelLon_customContextMenuRequested(const QPoint &pos)
     menu->exec(this->mapToGlobal(pos));
 }
 
+
+// SSDV callsign
 uint32_t MainWindow::encodeCallsign(char* callsign) 
 {
     uint32_t x;
