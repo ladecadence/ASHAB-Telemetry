@@ -1,7 +1,7 @@
 # ASHAB-Telemetry
 
 Qt client application for ASHAB Balloon telemetry.
-Reads AWG packets from an APRS engine like direwolf, or LoRa packets (telemetry and SSDV) from serial port using ASHAB-Telemetry-Receiver device/firmware.
+Reads LoRa packets (telemetry and SSDV) from serial port using ASHAB-Telemetry-Receiver device/firmware.
 
 ![App](ASHAB-Telemetry.png)
 
