@@ -44,9 +44,9 @@ MaxMinDialog::MaxMinDialog(QWidget *parent) :
             QTableWidgetItem *newItem =
                     new QTableWidgetItem(QTableWidgetItem::Type);
             if (i==0)
-                newItem->setBackgroundColor(QColor::fromRgb(255,100,100));
+                newItem->setBackground(QColor::fromRgb(255,100,100));
             else
-                newItem->setBackgroundColor(QColor::fromRgb(100,255,100));
+                newItem->setBackground(QColor::fromRgb(100,255,100));
             ui->tableWidget->setItem(i, j, newItem);
         }
 

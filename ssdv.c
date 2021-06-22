@@ -415,9 +415,10 @@ static char ssdv_out_jpeg_int(ssdv_t *s, uint8_t rle, int value)
     r = jpeg_dht_lookup_symbol(s, (rle << 4) | (intlen & 0x0F),
                                &huffbits, &hufflen);
 	
-    if(r != SSDV_OK)
+    if(r != SSDV_OK) {
         fprintf(stderr, "jpeg_dht_lookup_symbol: %i (%i:%i)\n", r, value, rle);
-	
+    }
+
 	ssdv_outbits(s, huffbits, hufflen);
 	if(intlen) ssdv_outbits(s, intbits, intlen);
 	

@@ -185,7 +185,7 @@ void ChartsDialog::on_saveButton_clicked()
 
     // Take file path and name that will create
     QString newPath = QFileDialog::getSaveFileName(this,
-                                                   trUtf8("Save SVG"),
+                                                   "Save SVG",
                                                    path,
                                                    tr("SVG files (*.svg)"));
 
@@ -205,8 +205,8 @@ void ChartsDialog::on_saveButton_clicked()
     generator.setViewBox(
                 QRect(0, 0, static_cast<int>(ui->chartView->scene()->width()),
                       static_cast<int>(ui->chartView->scene()->height())));
-    generator.setTitle(trUtf8("SVG Example"));  // The title document
-    generator.setDescription(trUtf8("File created by SVG Example"));
+    generator.setTitle("SVG Example");  // The title document
+    generator.setDescription("File created by SVG Example");
 
     QPainter painter;
     painter.begin(&generator);
