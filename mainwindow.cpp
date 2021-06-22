@@ -7,29 +7,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     QString ip;
-    quint16 port;
     QString url;
     QString user;
     QString passwd;
 
     // check config and init values if empty
     config = new QSettings("ASHAB", "Telemetry");
-
-    if (config->contains("direwolf/ip"))
-    {
-        ip = config->value("direwolf/ip").toString();
-    } else {
-        ip = "127.0.0.1";
-        config->setValue("direwolf/ip", ip);
-    }
-
-    if (config->contains("direwolf/port"))
-    {
-        port = static_cast<quint16>(config->value("direwolf/port").toUInt());
-    } else {
-        port = 8000;
-        config->setValue("direwolf/port", port);
-    }
 
     if (config->contains("lora/port"))
     {
@@ -62,12 +45,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // start app
     // packet engines
-    lastAwgPacket = new QDateTime(QDateTime::currentDateTimeUtc());
     lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), SLOT(updatePacketTime()));
     timer->start(1000);
-    connectTcp(ip, port);
 
 
     // Create UI
@@ -125,47 +106,12 @@ MainWindow::~MainWindow()
     delete ui;
     delete telemetry;
     delete timer;
-    delete lastAwgPacket;
     delete lastLoRaPacket;
     delete config;
-    delete awgSocket;
     delete serialBuffer;
     delete loraSerialPort;
 
     qApp->exit();
-}
-
-// Creates TCP socket to receive AWG messages
-void MainWindow::connectTcp(QString host, quint16 port)
-{
-    // create AWG "m" message to listen to all packets
-    QByteArray m_message(36, 0);
-    m_message[4] = 'm';
-
-    // connect and send message
-    awgSocket = new QTcpSocket(this);
-    awgSocket->connectToHost(host, port);
-    // set slot
-    connect (awgSocket, SIGNAL(readyRead()), SLOT(readAwgData()));
-    if(awgSocket->waitForConnected() ) {
-        awgSocket->write(m_message);
-    }
-
-}
-
-// read AWG packets and process telemetry from them
-void MainWindow::readAwgData()
-{
-    // check for valid data
-    QByteArray inData;
-    while (awgSocket->bytesAvailable() > 0) {
-        char c;
-        awgSocket->getChar(&c);
-        if (c!=0)
-            inData.append(c);
-    }
-    fprintf(stderr, ">>> %s\n", inData.constData());
-    this->readTelemetry(QString::fromLocal8Bit(inData.constData()), Awg);
 }
 
 // processes telemetry data from AWG or LoRa packets
@@ -228,7 +174,7 @@ bool MainWindow::readTelemetry(QString data, int source)
             QFile log(config->value("log/filename").toString());
             if (log.open(QFile::Append)) {
                 QTextStream out(&log);
-                out << telemetry->toString() << endl;
+                out << telemetry->toString() << Qt::endl;
                 out.flush();
                 log.close();
             }
@@ -241,12 +187,7 @@ bool MainWindow::readTelemetry(QString data, int source)
         if (telemetry->sats.toInt() >= 0)
             uploadTelemetry();
 
-        if (source == Awg)
-        {
-            delete lastAwgPacket;
-            lastAwgPacket = new QDateTime(QDateTime::currentDateTimeUtc());
-        }
-        else if (source == LoRa)
+        if (source == LoRa)
         {
             delete lastLoRaPacket;
             lastLoRaPacket = new QDateTime(QDateTime::currentDateTimeUtc());
@@ -307,10 +248,7 @@ void MainWindow::readLoRaSerialData()
              (serialBuffer->at(1) == '$') &&
              (serialBuffer->at(serialBuffer->length()-1) == '\n')) {
 
-        //QByteArray telem_data =
-        //        QByteArray::fromRawData(serialBuffer->constData(),
-        //                                serialBuffer->length());
-                // ok, parse telemetry
+        // ok, parse telemetry
         consoleDialog->append("Telemetry Packet!");
         consoleDialog->append(QString::fromLocal8Bit(serialBuffer->data()));
 
@@ -416,26 +354,11 @@ void MainWindow::updatePacketTime()
 {
     QDateTime *now = new QDateTime(QDateTime::currentDateTimeUtc());
 
-    // AWG
-    int awgSeconds = static_cast<int>(lastAwgPacket->secsTo(*now));
-    QString message = QString::fromUtf8("Último paquete AWG hace: ");
-    if (awgSeconds > 59) {
-        int minutes = awgSeconds / 60;
-        awgSeconds = awgSeconds % 60;
-        message.append(QString::number(minutes));
-        message.append(" m, ");
-        message.append(QString::number(awgSeconds));
-        message.append(" s.");
-    }
-    else
-    {
-        message.append(QString::number(awgSeconds));
-        message.append(" s.");
-    }
+    QString message = QString::fromUtf8("");
 
     // LoRa
     if (loraSerialPortValid) {
-        message.append(" / Último paquete LoRa hace: ");
+        message.append("Último paquete LoRa hace: ");
         int loraSeconds = static_cast<int>(lastLoRaPacket->secsTo(*now));
 
         if (loraSeconds > 59) {
@@ -477,36 +400,7 @@ void MainWindow::on_actionSalir_triggered()
 void MainWindow::on_actionConfigurar_triggered()
 {
     // show config dialog
-    int configChanged = configDialog->exec();
-
-    // if Ok was pressed
-    if (configChanged)
-    {
-        QString ip;
-        quint16 port;
-
-        if (config->contains("direwolf/ip"))
-        {
-            ip = config->value("direwolf/ip").toString();
-        } else {
-            ip = "127.0.0.1";
-            config->setValue("direwolf/ip", ip);
-        }
-
-        if (config->contains("direwolf/port"))
-        {
-            port = static_cast<quint16>(config->value("direwolf/port").toInt());
-        } else {
-            port = 8000;
-            config->setValue("direwolf/port", port);
-        }
-
-        // reconnect AGW
-        awgSocket->close();
-        connectTcp(ip, port);
-
-    }
-
+    configDialog->exec();
 }
 
 // uploads telemetry to tracker server

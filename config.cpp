@@ -14,20 +14,6 @@ Config::Config(QWidget *parent) :
 
     // read configuration values
     config = new QSettings("ASHAB", "Telemetry");
-    if (config->contains("direwolf/ip"))
-    {
-        ui->direwolfHostEdit->setText(config->value("direwolf/ip").toString());
-    } else {
-        ui->direwolfHostEdit->setText("127.0.0.1");
-    }
-
-    if (config->contains("direwolf/port"))
-    {
-        ui->direwolfPortEdit->setText(config->value("direwolf/port")
-                                      .toString());
-    } else {
-        ui->direwolfPortEdit->setText(QString::number(8000));
-    }
 
     if (config->contains("lora/port"))
     {
@@ -84,12 +70,6 @@ void Config::on_buttonBox_accepted()
     config = new QSettings("ASHAB", "Telemetry");
 
     // check fields and update configuration
-    if (!ui->direwolfHostEdit->text().isEmpty())
-        config->setValue("direwolf/ip", ui->direwolfHostEdit->text());
-
-    if (!ui->direwolfPortEdit->text().isEmpty())
-        config->setValue("direwolf/port", ui->direwolfPortEdit->text());
-
     if (!ui->serialPortCombo->currentText().isEmpty())
         config->setValue("lora/port", ui->serialPortCombo->currentText());
 

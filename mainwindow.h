@@ -51,11 +51,8 @@ private:
     Ui::MainWindow *ui;
     qint16 port;
     QString ip;
-    QTcpSocket *awgSocket;
-    QDataStream *awgData;
     Telemetry *telemetry;
     QSettings *config;
-    QDateTime *lastAwgPacket;
     QDateTime *lastLoRaPacket;
     QTimer *timer;
     QAction *exitAction;
@@ -67,7 +64,6 @@ private:
 	uint32_t encodeCallsign(char* callsign);
 
 private slots:
-    void readAwgData();
     void readLoRaSerialData();
     bool readTelemetry(QString data, int source);
     void updatePacketTime();
