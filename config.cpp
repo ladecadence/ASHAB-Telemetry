@@ -65,13 +65,22 @@ Config::~Config()
     delete ui;
 }
 
+void Config::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    // get serial ports
+    Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
+        ui->serialPortCombo->addItem(port.systemLocation());
+    }
+}
+
 void Config::on_buttonBox_accepted()
 {
     config = new QSettings("ASHAB", "Telemetry");
 
     // check fields and update configuration
-    if (!ui->serialPortCombo->currentText().isEmpty())
+    if (!ui->serialPortCombo->currentText().isEmpty()) {
         config->setValue("lora/port", ui->serialPortCombo->currentText());
+    }
 
     if (!ui->imgPathEdit->text().isEmpty())
         config->setValue("lora/imgpath", ui->imgPathEdit->text());

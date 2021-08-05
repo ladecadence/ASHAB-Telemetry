@@ -25,6 +25,9 @@ private slots:
 
     //void on_ssdvPathButton_clicked();
 
+protected:
+    void showEvent(QShowEvent *ev);
+
 private:
     Ui::Config *ui;
     QSettings *config;
