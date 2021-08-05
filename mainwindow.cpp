@@ -120,8 +120,10 @@ MainWindow::~MainWindow()
 void MainWindow::updateSerialPorts() {
     if (config->contains("lora/port"))
     {
-        // try to open serial port
-        loraSerialPort = new QSerialPort();
+        // try to reopen serial port
+	if (loraSerialPort->openMode() != QIODevice::NotOpen) {
+		loraSerialPort->close();
+	}
         loraSerialPort->setPortName(config->value("lora/port").toString());
         loraSerialPort->setBaudRate(115200);
         if (!loraSerialPort->open(QIODevice::ReadOnly))
