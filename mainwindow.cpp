@@ -117,6 +117,29 @@ MainWindow::~MainWindow()
     qApp->exit();
 }
 
+void MainWindow::updateSerialPorts() {
+    if (config->contains("lora/port"))
+    {
+        // try to open serial port
+        loraSerialPort = new QSerialPort();
+        loraSerialPort->setPortName(config->value("lora/port").toString());
+        loraSerialPort->setBaudRate(115200);
+        if (!loraSerialPort->open(QIODevice::ReadOnly))
+        {
+            loraSerialPortValid = false;
+	    qDebug() << "Unable to open serial port.";
+        }
+        else
+        {
+            loraSerialPortValid = true;
+            // flush data
+            loraSerialPort->clear();
+            connect(loraSerialPort, SIGNAL(readyRead()),
+                    SLOT(readLoRaSerialData()));
+        }
+    }
+}
+
 // processes telemetry data from AWG or LoRa packets
 // updates UI if data is valid
 bool MainWindow::readTelemetry(QString data, int source)
@@ -377,6 +400,8 @@ void MainWindow::updatePacketTime()
             message.append(QString::number(loraSeconds));
             message.append(" s.");
         }
+    } else {
+	    message.append("No se puede abrir el puerto serie");
     }
 
     ui->statusBar->showMessage(message);
@@ -404,6 +429,7 @@ void MainWindow::on_actionConfigurar_triggered()
 {
     // show config dialog
     configDialog->exec();
+    updateSerialPorts();
 }
 
 // uploads telemetry to tracker server

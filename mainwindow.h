@@ -64,6 +64,7 @@ private:
 	uint32_t encodeCallsign(char* callsign);
 
 private slots:
+    void updateSerialPorts();
     void readLoRaSerialData();
     bool readTelemetry(QString data, int source);
     void updatePacketTime();
