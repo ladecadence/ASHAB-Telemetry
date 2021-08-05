@@ -67,7 +67,8 @@ Config::~Config()
 
 void Config::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
-    // get serial ports
+    ui->serialPortCombo->clear();
+    // get serial ports again
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
         ui->serialPortCombo->addItem(port.systemLocation());
     }
