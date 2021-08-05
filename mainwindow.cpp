@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!loraSerialPort->open(QIODevice::ReadOnly))
         {
             loraSerialPortValid = false;
+	    qDebug() << "Unable to open serial port.";
         }
         else
         {
@@ -94,6 +95,7 @@ MainWindow::~MainWindow()
     logDialog->close();
     maxMinDialog->close();
     ssdvDialog->close();
+    chartsDialog->close();
 
     delete consoleDialog;
     delete aboutDialog;
@@ -101,6 +103,7 @@ MainWindow::~MainWindow()
     delete logDialog;
     delete maxMinDialog;
     delete ssdvDialog;
+    delete chartsDialog;
 
     // clear memory
     delete ui;
