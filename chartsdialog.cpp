@@ -39,14 +39,13 @@ ChartsDialog::ChartsDialog(QWidget *parent, LogDialog *log) :
 
 ChartsDialog::~ChartsDialog()
 {
-    delete chart;
     delete chartValues;
     delete chartTitles;
-    if (lineSeries->attachedAxes().length() > 0) {
-        delete axisX;
-        delete axisY;
+    while (!lineSeries->attachedAxes().isEmpty()) {
+        delete lineSeries->attachedAxes().takeFirst();
     }
     delete lineSeries;
+    delete chart;
     delete ui;
 }
 
