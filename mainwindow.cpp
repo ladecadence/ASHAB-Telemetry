@@ -437,41 +437,57 @@ void MainWindow::on_actionConfigurar_triggered()
 // uploads telemetry to tracker server
 void MainWindow::uploadTelemetry()
 {
+//    // check for auth data
+//    if (config->contains("tracker/user")
+//            && config->contains("tracker/password")
+//            && config->contains("tracker/database")) {
+
+//        networkManager = new QNetworkAccessManager(this);
+
+//        // Setup the webservice url
+//        QUrlQuery postData;
+
+//        // add the data
+//        postData.addQueryItem("telemetry", telemetry->toString());
+//        postData.addQueryItem("image", "");
+//        postData.addQueryItem("database",
+//                              config->value("tracker/database").toString());
+
+//        // Auth
+//        QString concatenated = config->value("tracker/user").toString()
+//                + ":" + config->value("tracker/password").toString();
+//        QByteArray data = concatenated.toLocal8Bit().toBase64();
+//        QString headerData = "Basic " + data;
+
+//        QNetworkRequest request(config->value("tracker/url").toString());
+//        request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+//        request.setHeader(QNetworkRequest::ContentTypeHeader,
+//                          "application/x-www-form-urlencoded");
+//        connect(networkManager, SIGNAL(finished(QNetworkReply*)),
+//                this, SLOT(onPostAnswer(QNetworkReply*)));
+//        networkManager->post(request,
+//                             postData.toString(QUrl::FullyEncoded).toUtf8());
+//
+//
+//    }
+
     // check for auth data
-    if (config->contains("tracker/user")
-            && config->contains("tracker/password")
-            && config->contains("tracker/database")) {
+    if (config->contains("tracker/password")) {
 
         networkManager = new QNetworkAccessManager(this);
 
-        // Setup the webservice url
-        QUrlQuery postData;
-
-        // add the data
-        postData.addQueryItem("telemetry", telemetry->toString());
-        postData.addQueryItem("image", "");
-        postData.addQueryItem("database",
-                              config->value("tracker/database").toString());
-
         // Auth
-        QString concatenated = config->value("tracker/user").toString()
-                + ":" + config->value("tracker/password").toString();
-        QByteArray data = concatenated.toLocal8Bit().toBase64();
-        QString headerData = "Basic " + data;
-
         QNetworkRequest request(config->value("tracker/url").toString());
-        request.setRawHeader("Authorization", headerData.toLocal8Bit());
+        request.setRawHeader("X-Shitty-Auth", config->value("tracker/password").toString().toLocal8Bit());
 
         request.setHeader(QNetworkRequest::ContentTypeHeader,
-                          "application/x-www-form-urlencoded");
+                          "application/json");
         connect(networkManager, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(onPostAnswer(QNetworkReply*)));
         networkManager->post(request,
-                             postData.toString(QUrl::FullyEncoded).toUtf8());
-
-
+                             telemetry->toJSON().toLocal8Bit());
     }
-
 
 }
 
@@ -480,7 +496,7 @@ void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
     QString replyText = QString::fromUtf8(reply->readAll().constData());
     fprintf(stderr, "\n----->>>> %s\n", replyText.toLocal8Bit().constData());
-    if (replyText.contains("You can pass") && replyText.contains("inserted")) {
+    if (replyText.contains("Upload OK")) {
         fprintf(stderr, "+++ Uploaded!");
         consoleDialog->append("Telemetry uploaded to the server!\n");
     }
