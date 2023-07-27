@@ -7,6 +7,7 @@
 #include "consoledialog.h"
 
 #define TELEMETRY_FIELDS 14
+#define MISSION_NAME "eki2"
 
 #define FIELD_LAT  0
 #define FIELD_LON  1
@@ -47,6 +48,7 @@ public:
     Telemetry();
     bool parseData(QString data);
     QString toString();
+    QString toJSON();
 };
 
 #endif // TELEMETRY_H

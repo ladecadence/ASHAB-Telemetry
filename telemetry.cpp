@@ -89,3 +89,55 @@ QString Telemetry::toString()
 
     return data;
 }
+
+QString Telemetry::toJSON()
+{
+    QString data = "{\n";
+    data.append("'name': '");
+    data.append(MISSION_NAME);
+    data.append("'");
+    data.append(",\n");
+    data.append("'date': '");
+    data.append(date);
+    data.append("'");
+    data.append(",\n");
+    data.append("'time': '");
+    data.append(time);
+    data.append("'");
+    data.append(",\n");
+    data.append("'lat': ");
+    data.append(latitude);
+    data.append(",\n");
+    data.append("'lon': ");
+    data.append(longitude);
+    data.append(",\n");
+    data.append("'alt': ");
+    data.append(altitude);
+    data.append(",\n");
+    data.append("'batt': ");
+    data.append(voltage);
+    data.append(",\n");
+    data.append("'tin': ");
+    data.append(temp_int);
+    data.append(",\n");
+    data.append("'tout': ");
+    data.append(temp_ext);
+    data.append(",\n");
+    data.append("'baro': ");
+    data.append(baro);
+    data.append(",\n");
+    data.append("'hdg': ");
+    data.append(heading);
+    data.append(",\n");
+    data.append("'spd': ");
+    data.append(speed);
+    data.append(",\n");
+    data.append("'sats': ");
+    data.append(sats);
+    data.append(",\n");
+    data.append("'a_rate': ");
+    data.append(a_rate);
+    data.append("\n}");
+
+    return data;
+}
