@@ -262,7 +262,8 @@ void MainWindow::readLoRaSerialData()
     serialBuffer->chop(4);
 
     // check what we have
-    qDebug() << "DATA: " << serialBuffer->data();
+    qDebug() << "SERIAL DATA: " << serialBuffer->data();
+    
 
     // debug packet
     if (serialBuffer->at(0) == '#' &&
@@ -496,8 +497,8 @@ void MainWindow::onPostAnswer(QNetworkReply* reply)
 {
     QString replyText = QString::fromUtf8(reply->readAll().constData());
     fprintf(stderr, "\n----->>>> %s\n", replyText.toLocal8Bit().constData());
-    if (replyText.contains("Upload OK")) {
-        fprintf(stderr, "+++ Uploaded!");
+    if (replyText.contains("Telemetry Uploaded")) {
+        fprintf(stderr, "+++ Telemetry Uploaded!\n\n");
         consoleDialog->append("Telemetry uploaded to the server!\n");
     }
 
