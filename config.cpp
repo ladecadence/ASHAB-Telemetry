@@ -33,21 +33,10 @@ Config::Config(QWidget *parent) :
         ui->serverHostEdit->setText("http://ashab.space/tracker/upload.php");
     }
 
-    if (config->contains("tracker/user"))
-    {
-        ui->serverUserEdit->setText(config->value("tracker/user").toString());
-    }
-
     if (config->contains("tracker/password"))
     {
         ui->serverPassEdit->setText(config->value("tracker/password")
                                     .toString());
-    }
-
-    if (config->contains("tracker/database"))
-    {
-        ui->serverDbEdit->setText(config->value("tracker/database")
-                                  .toString());
     }
 
     if (config->contains("log/filename"))
@@ -89,14 +78,8 @@ void Config::on_buttonBox_accepted()
     if (!ui->serverHostEdit->text().isEmpty())
         config->setValue("tracker/url", ui->serverHostEdit->text());
 
-    if (!ui->serverUserEdit->text().isEmpty())
-        config->setValue("tracker/user", ui->serverUserEdit->text());
-
     if (!ui->serverPassEdit->text().isEmpty())
         config->setValue("tracker/password", ui->serverPassEdit->text());
-
-    if (!ui->serverDbEdit->text().isEmpty())
-        config->setValue("tracker/database", ui->serverDbEdit->text());
 
     // if it's empty but we have a config value, it was erased, erase it.
     if (ui->logFileEdit->text().isEmpty() && config->contains("log/filename"))
