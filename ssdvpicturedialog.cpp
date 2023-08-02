@@ -36,8 +36,7 @@ void SSDVPictureDialog::on_uploadButton_clicked()
     config = new QSettings("ASHAB", "Telemetry");
 
     // check for auth data
-    if (config->contains("tracker/user")
-            && config->contains("tracker/password")
+    if (config->contains("tracker/password")
             && config->contains("tracker/url"))
     {
         // disable upload button
@@ -50,11 +49,9 @@ void SSDVPictureDialog::on_uploadButton_clicked()
         QUrlQuery postData;
 
         // add the data
-        postData.addQueryItem("telemetry", "");
 		QFileInfo fi(pictureName);
 		qDebug() << fi.fileName();
         postData.addQueryItem("image", fi.fileName());
-        postData.addQueryItem("database", "");
 
 		// image data
 		QFile file(pictureName);
@@ -62,25 +59,27 @@ void SSDVPictureDialog::on_uploadButton_clicked()
             return;
         }
 
-
 		QByteArray imageData = file.readAll().toBase64();
 		file.close();
 
 
         // Auth
-        QString concatenated = config->value("tracker/user").toString()
-                + ":" + config->value("tracker/password").toString();
-        QByteArray data = concatenated.toLocal8Bit().toBase64();
-        QString headerData = "Basic " + data;
+        // QString concatenated = config->value("tracker/user").toString()
+        //         + ":" + config->value("tracker/password").toString();
+        // QByteArray data = concatenated.toLocal8Bit().toBase64();
+        // QString headerData = "Basic " + data;
 
         //QNetworkRequest request(config->value("tracker/url").toString());
         QNetworkRequest request;
+        
 
 		QUrl url(config->value("tracker/url").toString());
 		url.setQuery(postData);
 		request.setUrl(url);
+        // Auth
+        request.setRawHeader("X-Shitty-Auth", config->value("tracker/password").toString().toLocal8Bit());
 
-     	request.setRawHeader("Authorization", headerData.toLocal8Bit());
+     	//request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
 		request.setHeader(QNetworkRequest::ContentTypeHeader,
 							"text/plain");
@@ -112,10 +111,9 @@ void SSDVPictureDialog::onPostAnswer(QNetworkReply* reply)
     ui->uploadButton->setEnabled(true);
 
     QString replyText = QString::fromUtf8(reply->readAll().constData());
-    fprintf(stderr, "\n----->>>> %s", replyText.toLocal8Bit().constData());
-    if (replyText.contains("You can pass")
-            && replyText.contains("has been uploaded")) {
-        fprintf(stderr, "+++ Image Uploaded!");
+    fprintf(stderr, "\n----->>>> %s\n", replyText.toLocal8Bit().constData());
+    if (replyText.contains("Image Uploaded")) {
+        fprintf(stderr, "+++ Image Uploaded!\n");
         ui->labelUpload->setText("Uploaded.");
     }
     else if (replyText.contains("error")) {
